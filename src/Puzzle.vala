@@ -47,72 +47,72 @@ public class Board
 	private CellList[] columns;
 	private CellList[] boxes;
 	private int magnitude;
-	
+    private int empty;
 	public Board()
 	{
 		this.with_magnitude(3);
 	}
-	
+
 	public Board.with_grid(int[,] grid)
 	{
 		int magnitude = 0;
 		while ((++magnitude * magnitude) < grid.length[0]);
 		this.with_magnitude(magnitude);
-		
-		int empty = magnitude <= 3 ? 0 : -1;
-		
+
+		empty = magnitude <= 3 ? 0 : -1;
+
 		for (int i = 0; i < sizes; i++)
 			for (int j = 0; j < sizes; j++)
 			{
 				int number = grid[i, j];
 				Cell cell = cells[i * sizes + j];
-				
+
 				if (number != empty)
 					cell.set_only_possibility(number - 1 - empty);
 			}
 	}
-	
+
 	public Board.with_magnitude(int magnitude)
 	{
 		this.magnitude = magnitude;
 		sizes = magnitude * magnitude;
-		
+
 		cells = new Cell[sizes*sizes];
 		rows = new CellList[sizes];
 		columns = new CellList[sizes];
 		boxes = new CellList[sizes];
-		
+
 		for (int i = 0; i < cells.length; i++)
 			cells[i] = new Cell(sizes, i % sizes, i / sizes);
-		
+
 		Cell[] row_list = new Cell[sizes];
 		Cell[] column_list = new Cell[sizes];
 		Cell[] box_list = new Cell[sizes];
-		
+
 		for (int i = 0; i < sizes; i++)
 		{
 			for (int j = 0; j < sizes; j++)
 			{
 				row_list[j] = cells[i*sizes + j];
 				column_list[j] = cells[j*sizes + i];
-				
+
 				int x = magnitude * (i % magnitude) + (j % magnitude);
 				int y = magnitude * (i / magnitude) + (j / magnitude);
-				
+
 				box_list[j] = cells[x + y * sizes];
 			}
-			
+
 			rows[i] = new CellList(row_list);
 			columns[i] = new CellList(column_list);
 			boxes[i] = new CellList(box_list);
 		}
 	}
-	
+
 	public CellList get_box_at(int x, int y)
 	{
 		x /= magnitude;
 		y /= magnitude;
-		
+
 		return boxes[x + y * magnitude];
 	}
 	public Cell get_cell_at(int x, int y)
@@ -124,52 +124,97 @@ public class Board
 		cells[x+y*(sizes)].number = number;
 	}
 	public int sizes { get; private set; }
+	private bool solved()
+	{
+	    int row, col;
+	    if(!find_unassigned (out row, out col))
+            return true;
+        for (int i = empty; i < sizes + empty; i++)
+        {
+            if(is_safe(row,col,i))
+            {
+                set_cell_at(col,row,i);
+                if(solved())
+                    return true;
+                set_cell_at(col,row,empty);
+            }
+        }
+        return false;
+	}
+	private bool find_unassigned(out int row, out int col)
+	{
+	    for(row = 0; row < sizes; row++)
+            for(col= 0; col < sizes; col++)
+                if(get_cell_at(col,row).number == empty)
+                    return true;
+        row = 0;
+        col = 0;
+        return false;
+	}
+	//not sure how to do
+	private bool is_safe(int row, int col, int num)
+	{
+	    if (!rows[row].is_used(num))
+            if (!columns[col].is_used(num))
+                if (!get_box_at(col,row).is_used(num))
+                    return true;
+        return false;
+
+	}
+
 }
 
 public class CellList
 {
 	private Cell[] cells;
-	
+
 	public CellList(Cell[] cells)
 	{
 		this.cells = cells;
 	}
-	
+
 	public void rule_out(int index)
 	{
 		foreach (Cell c in cells)
 			c.set_possibility(index, false);
+	}
+	public bool is_used(int number)
+	{
+	    foreach (Cell c in cells)
+            if (number == c.number)
+                return true;
+        return false;
 	}
 }
 
 public class Cell
 {
 	private bool[] options;
-	
+
 	public Cell(int possibilities, int x, int y)
 	{
 		options = new bool[possibilities];
 		this.x = x;
 		this.y = y;
 	}
-	
+
 	public bool get_possibility(int index)
 	{
 		return options[index];
 	}
-	
+
 	public void set_possibility(int index, bool value)
 	{
 		options[index] = value;
 	}
-	
+
 	public void set_only_possibility(int index)
 	{
 		for (int i = 0; i < options.length; i++)
 			options[i] = i == index;
 		number = index;
 	}
-	
+
 	public int number { get; set; }
 	public int x { get; private set; }
 	public int y { get; private set; }
