@@ -1,9 +1,12 @@
+VALAC = valac
+DIRS  = src/*.vala
+PKGS  = --pkg gtk+-3.0 --pkg posix
+O     = -o sudoku
+ARGS  = -g
+
 .PHONY: all
 
 all:
-	valac \
-		-g \
-		--pkg gtk+-3.0 \
-		--pkg posix \
-		-o sudoku \
-		`find . -type f | grep -E '.vala'`
+	$(VALAC) $(ARGS) $(PKGS) $(O) $(DIRS)
+
+release: all
