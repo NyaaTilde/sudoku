@@ -3,7 +3,7 @@ public class Solver
 	private int N;
 	private int smallest = -1;
 	private int count = 0;
-	public Solver(int size)
+	public Solver.with_size(int size)
 	{
 		N = size;
 	}
@@ -11,8 +11,8 @@ public class Solver
 	{
 		N = 3;
 	}
-	
-	private init()
+
+	private void init()
 	{
 		int[,] grid =
 		{{8,-1,-1,-1,-1,-1,-1,-1,-1},
@@ -32,11 +32,11 @@ public class Solver
 		timer.stop();
 		ulong time;
 		timer.elapsed(out time);
-		
+
 		print("Solving time: " + (time / 1000).to_string() + "ms\n");
 		print("Count: " + count.to_string() + "\n");
 				// -1 means unassigned cells
-	
+
 /*{{-1,-1,-1,-1,-1,-1,-1,12,-1,2,-1,13,-1,4,-1,-1},
 	{-1,4,-1,8,-1,-1,3,-1,-1,15,-1,-1,11,12,-1,0},
 	{11,-1,-1,-1,5,1,9,15,7,-1,-1,-1,3,-1,-1,-1},
@@ -65,7 +65,7 @@ public class Solver
 	 {0,0,0,0,0,0,0,0,0}};*/
 	}
 
-	private bool solved(int[,] grid) 
+	private bool solved(int[,] grid)
 	{
 		int row, col;
 		if (!find_unassigned (grid, out row, out col))
@@ -99,7 +99,7 @@ public class Solver
 		return false;
 	}
 
-	private bool is_safe(int[,] grid, int row, int col, int num) 
+	private bool is_safe(int[,] grid, int row, int col, int num)
 	{
 		if (!used_row(grid, row, num))
 			if (!used_col(grid, col, num))
