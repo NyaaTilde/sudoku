@@ -24,6 +24,7 @@ class Application : Gtk.Application
 		Gtk.Menu menu = new Gtk.Menu ();
 		Gtk.MenuItem menu_item_about = new Gtk.MenuItem.with_mnemonic ("_About");
 		Gtk.MenuItem menu_item_quit = new Gtk.MenuItem.with_label ("Quit");
+		UI.Puzzle puzzle = new UI.Puzzle (new Sudoku.Puzzle ());
 
 		menu_item_quit.activate.connect (() => {
 			this.quit ();
@@ -46,6 +47,8 @@ class Application : Gtk.Application
 		header_bar.subtitle = "Artificial Intelligence";
 		header_bar.show_close_button = true;
 		header_bar.pack_end (menu_button);
+
+		box.add (puzzle);
 
 		this.window.set_default_size (800, 600);
 		this.window.set_titlebar (header_bar);

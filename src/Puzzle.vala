@@ -1,9 +1,9 @@
 namespace Sudoku
 {
 
-public class Puzzle
+public class Puzzle : Object
 {
-	private uint magnitude;
+	public uint magnitude { get; construct set; }
 	private int[] board;
 
 	public Puzzle ()
