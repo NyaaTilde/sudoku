@@ -59,7 +59,6 @@ public class Board
 		while ((++magnitude * magnitude) < grid.length[0]);
 		this.with_magnitude(magnitude);
 		
-		int sizes = magnitude * magnitude;
 		int empty = magnitude <= 3 ? 0 : -1;
 		
 		for (int i = 0; i < sizes; i++)
@@ -76,7 +75,7 @@ public class Board
 	public Board.with_magnitude(int magnitude)
 	{
 		this.magnitude = magnitude;
-		int sizes = magnitude * magnitude;
+		sizes = magnitude * magnitude;
 		
 		cells = new Cell[sizes*sizes];
 		rows = new CellList[sizes];
@@ -116,6 +115,15 @@ public class Board
 		
 		return boxes[x + y * magnitude];
 	}
+	public Cell get_cell_at(int x, int y)
+	{
+		return cells[x+y*(sizes)];
+	}
+	public void set_cell_at(int x, int y, int number)
+	{
+		cells[x+y*(sizes)].number = number;
+	}
+	public int sizes { get; private set; }
 }
 
 public class CellList
@@ -162,7 +170,7 @@ public class Cell
 		number = index;
 	}
 	
-	public int number { get; private set; }
+	public int number { get; set; }
 	public int x { get; private set; }
 	public int y { get; private set; }
 }
