@@ -1,6 +1,6 @@
 int main (string[] args)
 {
-	Sudoku.Application app = new Sudoku.Application ();
+	Sudoku.UI.Application app = new Sudoku.UI.Application ();
 
 	return app.run (args);
 }

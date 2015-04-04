@@ -1,4 +1,4 @@
-namespace Sudoku
+namespace Sudoku.UI
 {
 
 class Application : Gtk.Application
@@ -30,7 +30,7 @@ class Application : Gtk.Application
 		});
 
 		menu_item_about.activate.connect (() => {
-			AboutDialog dialog = new AboutDialog (this.window);
+			UI.AboutDialog dialog = new UI.AboutDialog (this.window);
 			dialog.present ();
 		});
 
