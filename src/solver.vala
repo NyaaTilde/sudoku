@@ -65,7 +65,7 @@ public class Solver
 	 {0,0,0,0,0,0,0,0,0}};*/
 	}
 
-	bool solved(int[,] grid) 
+	private bool solved(int[,] grid) 
 	{
 		int row, col;
 		if (!find_unassigned (grid, out row, out col))
@@ -88,7 +88,7 @@ public class Solver
 		return false;
 	}
 
-	bool find_unassigned(int[,] grid, out int row, out int col)
+	private bool find_unassigned(int[,] grid, out int row, out int col)
 	{
 		for (row = 0; row < grid.length[0]; row++)
 			for (col = 0; col < grid.length[1]; col++)
@@ -99,7 +99,7 @@ public class Solver
 		return false;
 	}
 
-	bool is_safe(int[,] grid, int row, int col, int num) 
+	private bool is_safe(int[,] grid, int row, int col, int num) 
 	{
 		if (!used_row(grid, row, num))
 			if (!used_col(grid, col, num))
@@ -108,7 +108,7 @@ public class Solver
 		return false;
 	}
 
-	bool used_row(int[,] grid, int row, int num)
+	private bool used_row(int[,] grid, int row, int num)
 	{
 		for (int col = 0; col < grid.length[1]; col++)
 			if (grid[row, col] == num)
@@ -116,7 +116,7 @@ public class Solver
 		return false;
 	}
 
-	bool used_col(int[,] grid, int col, int num)
+	private bool used_col(int[,] grid, int col, int num)
 	{
 		for (int row = 0; row < grid.length[0]; row++)
 			if (grid[row, col] == num)
@@ -124,7 +124,7 @@ public class Solver
 		return false;
 	}
 
-	bool used_box(int[,] grid, int row, int col, int num)
+	private bool used_box(int[,] grid, int row, int col, int num)
 	{
 		for (int i = 0; i < N; i++)
 			for (int j = 0; j < N; j++)
@@ -133,20 +133,20 @@ public class Solver
 		return false;
 	}
 
-	void fc_row(bool[,,] fc, int row, int num)
+	private void fc_row(bool[,,] fc, int row, int num)
 	{
 
 	}
-	void fc_col(bool[,,] fc, int col, int num)
+	private void fc_col(bool[,,] fc, int col, int num)
 	{
 
 	}
-	void fc_box(bool[,,] fc, int row, int col, int num)
+	private void fc_box(bool[,,] fc, int row, int col, int num)
 	{
 
 	}
 
-	void print_grid(int[,] grid)
+	public void print_grid(int[,] grid)
 	{
 		for (int row = 0; row < grid.length[0]; row++)
 		{
