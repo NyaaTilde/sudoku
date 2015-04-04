@@ -42,6 +42,7 @@ public class Puzzle
 
 public class Board
 {
+	private Cell[] cells;
 	private CellList[] rows;
 	private CellList[] columns;
 	private CellList[] boxes;
@@ -52,12 +53,32 @@ public class Board
 		this.with_magnitude(3);
 	}
 	
+	public Board.with_grid(int[,] grid)
+	{
+		int magnitude = 0;
+		while ((++magnitude * magnitude) < grid.length[0]);
+		this.with_magnitude(magnitude);
+		
+		int sizes = magnitude * magnitude;
+		int empty = magnitude <= 3 ? 0 : -1;
+		
+		for (int i = 0; i < sizes; i++)
+			for (int j = 0; j < sizes; j++)
+			{
+				int number = grid[i, j];
+				Cell cell = cells[i * sizes + j];
+				
+				if (number != empty)
+					cell.set_only_possibility(number - 1 - empty);
+			}
+	}
+	
 	public Board.with_magnitude(int magnitude)
 	{
 		this.magnitude = magnitude;
 		int sizes = magnitude * magnitude;
 		
-		Cell[] cells = new Cell[sizes*sizes];
+		cells = new Cell[sizes*sizes];
 		rows = new CellList[sizes];
 		columns = new CellList[sizes];
 		boxes = new CellList[sizes];
@@ -134,6 +155,14 @@ public class Cell
 		options[index] = value;
 	}
 	
+	public void set_only_possibility(int index)
+	{
+		for (int i = 0; i < options.length; i++)
+			options[i] = i == index;
+		number = index;
+	}
+	
+	public int number { get; private set; }
 	public int x { get; private set; }
 	public int y { get; private set; }
 }
