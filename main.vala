@@ -74,7 +74,7 @@ int main()
 	return 0;
 }
 
-bool solved(int[,] grid, bool[,,] fc) 
+bool solved(int[,] grid) 
 {
 	int row, col;
 	if (!find_unassigned (grid, out row, out col))
