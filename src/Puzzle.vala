@@ -40,4 +40,102 @@ public class Puzzle
 	}
 }
 
+public class Board
+{
+	private CellList[] rows;
+	private CellList[] columns;
+	private CellList[] boxes;
+	private int magnitude;
+	
+	public Board()
+	{
+		this.with_magnitude(3);
+	}
+	
+	public Board.with_magnitude(int magnitude)
+	{
+		this.magnitude = magnitude;
+		int sizes = magnitude * magnitude;
+		
+		Cell[] cells = new Cell[sizes*sizes];
+		rows = new CellList[sizes];
+		columns = new CellList[sizes];
+		boxes = new CellList[sizes];
+		
+		for (int i = 0; i < cells.length; i++)
+			cells[i] = new Cell(sizes, i % sizes, i / sizes);
+		
+		Cell[] row_list = new Cell[sizes];
+		Cell[] column_list = new Cell[sizes];
+		Cell[] box_list = new Cell[sizes];
+		
+		for (int i = 0; i < sizes; i++)
+		{
+			for (int j = 0; j < sizes; j++)
+			{
+				row_list[j] = cells[i*sizes + j];
+				column_list[j] = cells[j*sizes + i];
+				
+				int x = magnitude * (i % magnitude) + (j % magnitude);
+				int y = magnitude * (i / magnitude) + (j / magnitude);
+				
+				box_list[j] = cells[x + y * sizes];
+			}
+			
+			rows[i] = new CellList(row_list);
+			columns[i] = new CellList(column_list);
+			boxes[i] = new CellList(box_list);
+		}
+	}
+	
+	public CellList get_box_at(int x, int y)
+	{
+		x /= magnitude;
+		y /= magnitude;
+		
+		return boxes[x + y * magnitude];
+	}
+}
+
+public class CellList
+{
+	private Cell[] cells;
+	
+	public CellList(Cell[] cells)
+	{
+		this.cells = cells;
+	}
+	
+	public void rule_out(int index)
+	{
+		foreach (Cell c in cells)
+			c.set_possibility(index, false);
+	}
+}
+
+public class Cell
+{
+	private bool[] options;
+	
+	public Cell(int possibilities, int x, int y)
+	{
+		options = new bool[possibilities];
+		this.x = x;
+		this.y = y;
+	}
+	
+	public bool get_possibility(int index)
+	{
+		return options[index];
+	}
+	
+	public void set_possibility(int index, bool value)
+	{
+		options[index] = value;
+	}
+	
+	public int x { get; private set; }
+	public int y { get; private set; }
+}
+
 }
