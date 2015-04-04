@@ -30,6 +30,8 @@ class Application : Gtk.Application
 		});
 
 		menu_item_about.activate.connect (() => {
+			AboutDialog dialog = new AboutDialog (this.window);
+			dialog.present ();
 		});
 
 		menu.add (menu_item_about);
