@@ -6,4 +6,4 @@ all:
 		--pkg gtk+-3.0 \
 		--pkg posix \
 		-o sudoku \
-		`find . -type f | grep -E '.vala'`
+		*.vala
