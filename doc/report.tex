@@ -1,0 +1,67 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[british]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage{verbatim}
+
+\title{Final Project: The Report}
+\author{Ingibergur Sindri Stefnisson \and Gabríel Arthúr Pétursson \and Kristján Árni Gerhardsson
+	\footnote{The order of the names listed were determined by Procrastination.}}
+
+\begin{document}
+
+\maketitle
+
+\clearpage
+
+%% an introduction, which introduces the topic of the project, motivates it (= 
+%% explain why you believe this is interesting) and states the
+%% purpose of the project (what you wanted to achieve),
+%% a  description of what you did, which methods you used and why you chose these methods
+%% a presentation, interpretation and discussion of the results (e.g., data from 
+%% experiments you did and what the data means and how it compares %to other experiments or what you expected)
+%% a conclusion (summary of the project's goals, results and their implications)
+%% some suggestions for future work
+
+\section*{Introduction}
+
+The topic of our project was to make a Sudoku solver and generator. What interested
+us in doing this is that all of us like Sudoku and we wanted to see how we would
+go about making our own Sudoku program with a solver and a generator.\\
+
+First a little backstory on Sudoku.\\
+
+Sudoku was popularized in 1986 in Japan but it didn't become internationally known
+until 2005. Since then it has been puzzling people all over the world. 
+There are quite a lot of variations of the Sudoku puzzle in existence. But our 
+solver/generator was made for the normal type of Sudoku.\\
+
+What we originally wanted to achieve was just a simple solver for 9x9 Sudoku puzzles.
+What we found out though, that 9x9 puzzles are very easy to bruteforce by using
+a backtracking search algorithm. So we decided to go deeper and see if we could
+make a solver that could solve 16x16 puzzles quickly, since the backtracking algorithm
+is quite useless for those without modifications.\\
+
+So with the simple backtracking search we started by changing it to have forward 
+checking and later on constraint propagation.
+
+\section*{Description}
+
+\ldots
+
+\section*{Results}%presentation, interpretation and discussion of the results.
+
+\ldots
+
+\section*{Conclusion}
+
+\ldots
+
+\section*{Future Suggestions}
+
+\ldots
+
+\end{document}
