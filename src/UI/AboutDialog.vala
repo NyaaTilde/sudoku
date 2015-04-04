@@ -1,4 +1,4 @@
-namespace Sudoku
+namespace Sudoku.UI
 {
 
 class AboutDialog : Gtk.AboutDialog
