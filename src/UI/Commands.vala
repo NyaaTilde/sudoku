@@ -16,13 +16,22 @@ class Commands : Gtk.Menu
 
 	construct
 	{
+		Gtk.MenuItem new_game = new Gtk.MenuItem.with_mnemonic ("_New");
 		Gtk.MenuItem about = new Gtk.MenuItem.with_mnemonic ("_About");
 		Gtk.MenuItem quit = new Gtk.MenuItem.with_label ("Quit");
 
+		this.add (new_game);
 		this.add (about);
 		this.add (new Gtk.SeparatorMenuItem ());
 		this.add (quit);
+
 		this.show_all ();
+
+		new_game.activate.connect (() => {
+			NewGameDialog dialog = new NewGameDialog (this.parent_window);
+			dialog.run ();
+			dialog.destroy ();
+		});
 
 		about.activate.connect (() => {
 			AboutDialog dialog = new AboutDialog (this.parent_window);
