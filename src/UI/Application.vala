@@ -21,27 +21,11 @@ class Application : Gtk.Application
 		Gtk.Box box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
 		Gtk.MenuButton menu_button = new Gtk.MenuButton ();
 		Gtk.Image image = new Gtk.Image.from_icon_name ("emblem-system-symbolic", Gtk.IconSize.BUTTON);
-		Gtk.Menu menu = new Gtk.Menu ();
-		Gtk.MenuItem menu_item_about = new Gtk.MenuItem.with_mnemonic ("_About");
-		Gtk.MenuItem menu_item_quit = new Gtk.MenuItem.with_label ("Quit");
+		UI.Commands commands = new UI.Commands (this, this.window);
 		UI.Puzzle puzzle = new UI.Puzzle (new Sudoku.Puzzle ());
 
-		menu_item_quit.activate.connect (() => {
-			this.quit ();
-		});
-
-		menu_item_about.activate.connect (() => {
-			UI.AboutDialog dialog = new UI.AboutDialog (this.window);
-			dialog.present ();
-		});
-
-		menu.add (menu_item_about);
-		menu.add (new Gtk.SeparatorMenuItem ());
-		menu.add (menu_item_quit);
-		menu.show_all ();
-
 		menu_button.add (image);
-		menu_button.set_popup (menu);
+		menu_button.set_popup (commands);
 
 		header_bar.title = "Sudoku";
 		header_bar.subtitle = "Artificial Intelligence";
