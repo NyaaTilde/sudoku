@@ -48,6 +48,9 @@ class Application : Gtk.Application
 		header_bar.show_close_button = true;
 		header_bar.pack_end (menu_button);
 
+		box.halign = Gtk.Align.CENTER;
+		box.valign = Gtk.Align.CENTER;
+		box.expand = true;
 		box.add (puzzle);
 
 		this.window.set_default_size (800, 600);
