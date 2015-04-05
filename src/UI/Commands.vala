@@ -35,7 +35,8 @@ class Commands : Gtk.Menu
 
 		about.activate.connect (() => {
 			AboutDialog dialog = new AboutDialog (this.parent_window);
-			dialog.present ();
+			dialog.run ();
+			dialog.destroy ();
 		});
 
 		quit.activate.connect (() => {
