@@ -53,6 +53,19 @@ class Puzzle : Gtk.DrawingArea
 		return this.alphabet[this.puzzle.magnitude][num].to_string ();
 	}
 
+	private int get_number (char character)
+	{
+		string alpha = this.alphabet[this.puzzle.magnitude];
+
+		for (int i = 0; i < alpha.length; ++i)
+		{
+			if (alpha[i] == character)
+				return i;
+		}
+
+		return -1;
+	}
+
 	private bool on_button_press_event (Gdk.EventButton ev)
 	{
 		Gdk.Point tile = { };
@@ -82,12 +95,16 @@ class Puzzle : Gtk.DrawingArea
 				this.redraw ();
 				break;
 			default:
-				if (ev.keyval < '1' || ev.keyval > '9')
+				if (ev.keyval >= 0x80)
 					return true;
 
-				int num = (int) ev.keyval - '0';
+				char chr = ((char) ev.keyval).toupper ();
+				int num = get_number (chr);
 
-				this.puzzle.set_at (this.active_tile.x, this.active_tile.y, num - 1);
+				if (num == -1)
+					return true;
+
+				this.puzzle.set_at (this.active_tile.x, this.active_tile.y, num);
 				this.active_tile = { -1, -1 };
 				this.redraw ();
 				break;
