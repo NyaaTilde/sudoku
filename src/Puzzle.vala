@@ -38,6 +38,13 @@ public class Puzzle : Object
 	{
 		board[y * magnitude * magnitude + x] = value;
 	}
+
+	public bool is_fixed (int x, int y)
+		requires (x >= 0 && x < magnitude * magnitude)
+		requires (y >= 0 && y < magnitude * magnitude)
+	{
+		return false;
+	}
 }
 
 public class Board
