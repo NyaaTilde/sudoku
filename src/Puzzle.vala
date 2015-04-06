@@ -49,7 +49,7 @@ public class Board
 
 	private int magnitude;
 	private int sizes;
-
+    public int states_expanded { get; set;}
 
 	public Board()
 	{
@@ -70,9 +70,11 @@ public class Board
 				int number = grid[i, j];
 				Cell cell = cells[i * sizes + j];
 
-				cell.set_only_possibility(number - 1 - empty);
-				if(number != empty)
+				if(number != -1)
+				{
+                    cell.set_only_possibility(number - 1 - empty);
                     rule_out_cells(i, j, number, cell);
+                }
 			}
 	}
 
@@ -80,7 +82,7 @@ public class Board
 	{
 		this.magnitude = magnitude;
 		sizes = magnitude * magnitude;
-
+        states_expanded = 0;
 		cells = new Cell[sizes*sizes];
 		rows = new CellList[sizes];
 		columns = new CellList[sizes];
@@ -112,9 +114,9 @@ public class Board
 		}
 	}
 
-	public void solve()
+	public Board? solve()
 	{
-		solved();
+		return solved(this);
 	}
 
 	private CellList get_box_at(int x, int y)
@@ -135,25 +137,69 @@ public class Board
 		cells[x+y*(sizes)].number = number;
 	}
 
-	private bool solved()
+	private static Board? solved(Board board)
 	{
 	    int row, col;
-	    if(!find_unassigned (out row, out col))
-            return true;
-        for (int i = 0; i < sizes; i++)
+	    switch(board.find_option (out row, out col))
+	    {
+            case CELL_SEARCH_ENUM.FINISHED:
+                return board;
+            case CELL_SEARCH_ENUM.FAILURE:
+                return null;
+	    }
+        for (int i = 0; i < board.sizes; i++)
         {
-            if(is_safe(row,col,i))
+            if(board.has_option(row,col,i))
             {
-                //Board b = copy();
-                set_cell_at(col,row,i);
-                rule_out_cells(row, col, i, get_cell_at(col, row));
-                if(solved())
-                    return true;
-                set_cell_at(col, row, -1);
+                print("Do u even go here?");
+                Board b = board.copy();
+                b.set_cell_at(col,row,i);
+                b.rule_out_cells(row, col, i, b.get_cell_at(col, row));
+                board.states_expanded +=1;
+                if ((b = solved(b)) != null)
+                    return b;
+
+                //set_cell_at(col, row, -1);
                 //this = b;
             }
         }
+        return null;
+	}
+
+	public bool solvedBST()
+	{
+        int row, col;
+        if(!find_unassigned(out row, out col))
+            return true;
+        for(int i = 0; i < sizes; i++)
+        {
+            if(is_safe(row,col,i))
+            {
+                states_expanded +=1;
+                set_cell_at(col, row, i);
+                if(solvedBST())
+                    return true;
+                set_cell_at(col,row,-1);
+            }
+        }
         return false;
+
+	}
+	private CELL_SEARCH_ENUM find_option(out int row, out int col)
+	{
+	    for (row = 0; row < sizes; row++)
+            for (col= 0; col < sizes; col++)
+                switch (get_cell_at(col,row).has_multiple_options())
+                {
+                case CELL_SEARCH_ENUM.UNASSIGNED:
+                    return CELL_SEARCH_ENUM.UNASSIGNED;
+                case CELL_SEARCH_ENUM.FAILURE:
+                    return CELL_SEARCH_ENUM.FAILURE;
+                }
+
+        row = 0;
+        col = 0;
+        return CELL_SEARCH_ENUM.FINISHED;
 	}
 
 	private bool find_unassigned(out int row, out int col)
@@ -175,10 +221,14 @@ public class Board
                     return true;
         return false;
 	}
-	private bool has_possibilities(int row, int col, int num)
+
+	private bool has_option(int row, int col, int num)
 	{
-
-
+	    if (rows[row].has_option(num) &&
+            columns[col].has_option(num) &&
+            get_box_at(col,row).has_option(num))
+            return true;
+        return false;
 	}
 
 	public string to_string()
@@ -203,6 +253,7 @@ public class Board
 
 		return b;
 	}
+
 	public void rule_out_cells(int row, int col, int num, Cell cell)
 	{
 	    rows[row].rule_out(cell, num);
@@ -237,6 +288,14 @@ public class CellList
         return false;
 	}
 
+	public bool has_option(int number)
+	{
+        foreach (Cell c in cells)
+            if (!c.get_possibility(number))
+                return false;
+        return true;
+	}
+
 	public string to_string()
 	{
 		string str = "";
@@ -261,6 +320,8 @@ public class Cell
 		options = new bool[possibilities];
 		this.x = x;
 		this.y = y;
+		for (int i = 0; i < options.length; i++)
+            options[i] = true;
 	}
 
 	public bool get_possibility(int index)
@@ -292,6 +353,21 @@ public class Cell
 			options[i] = cell.options[i];
 	}
 
+	public CELL_SEARCH_ENUM has_multiple_options()
+	{
+        int opts = 0;
+
+        for (int i = 0; i < options.length; i++)
+        {
+            if (options[i])
+                opts++;
+            if (opts >= 2)
+                return CELL_SEARCH_ENUM.UNASSIGNED;
+        }
+
+        return opts == 0 ? CELL_SEARCH_ENUM.FAILURE : CELL_SEARCH_ENUM.FINISHED;
+	}
+
 	public string to_string()
 	{
 		string n = (number+1).to_string();
@@ -305,6 +381,13 @@ public class Cell
 	public int number { get; set; }
 	public int x { get; private set; }
 	public int y { get; private set; }
+}
+
+public enum CELL_SEARCH_ENUM
+{
+    UNASSIGNED,
+    FINISHED,
+    FAILURE
 }
 
 }
