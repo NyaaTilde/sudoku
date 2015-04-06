@@ -30,7 +30,7 @@ class NewGameDialog : Gtk.Dialog
 
 		add_option
 			( "Magnitude"
-			, new Gtk.SpinButton (new Gtk.Adjustment (3, 3, 5, 1, 0, 0), 1, 0)
+			, new Gtk.SpinButton (new Gtk.Adjustment (3, 3, 6, 1, 0, 0), 1, 0)
 			);
 
 		content_area.margin = 4;
