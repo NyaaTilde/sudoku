@@ -13,7 +13,7 @@ class Application : Gtk.Application
 
 	protected override void activate ()
 	{
-		Window window = new Window (this);
+		Window window = new Window (this, new Sudoku.Puzzle ());
 		window.show_all ();
 	}
 }
