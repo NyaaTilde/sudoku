@@ -15,6 +15,7 @@ class Puzzle : Gtk.DrawingArea
 
 		this.puzzle = puzzle;
 		this.tile = 52;
+		this.active_tile = { -1, -1 };
 
 		dimension
 			= this.tile * this.puzzle.magnitude * this.puzzle.magnitude
@@ -91,7 +92,7 @@ class Puzzle : Gtk.DrawingArea
 				}
 
 				/* render text */
-				if (num != "-2")
+				if (num != "-1")
 				{
 					ctx.set_source_rgb (0.0, 0.0, 0.0);
 					ctx.set_font_size (this.tile / 2.0);
