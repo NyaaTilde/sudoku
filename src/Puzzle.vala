@@ -13,7 +13,7 @@ public class Puzzle : Object
 	}
 
 	public Puzzle.with_magnitude (int magnitude)
-		requires (magnitude > 0)
+		requires (magnitude > 0 && magnitude < 7)
 	{
 		this.magnitude = magnitude;
 		this.board = new int[magnitude * magnitude * magnitude * magnitude];
