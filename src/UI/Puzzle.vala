@@ -172,18 +172,20 @@ class Puzzle : Gtk.DrawingArea
 				}
 
 				/* render text */
-				if (this.puzzle.get_at (i, j) != -1)
+				int num = this.puzzle.get_at (i, j);
+
+				if (num != -1)
 				{
-					string num = this.get_character (this.puzzle.get_at (i, j));
+					string str = this.get_character (num);
 
 					ctx.set_source_rgb (0.0, 0.0, 0.0);
 					ctx.set_font_size (this.tile / 2.0);
-					ctx.text_extents (num, out te);
+					ctx.text_extents (str, out te);
 					ctx.move_to
 						( 0.5*this.tile + 0.5 - te.x_bearing - te.width / 2
 						, 0.5*this.tile + 0.5 - te.y_bearing - te.height / 2
 						);
-					ctx.show_text (num);
+					ctx.show_text (str);
 					ctx.fill ();
 				}
 
