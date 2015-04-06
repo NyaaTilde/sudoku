@@ -16,6 +16,7 @@ public class Puzzle : Object
 		requires (magnitude > 0 && magnitude < 7)
 	{
 		this.magnitude = magnitude;
+		this.fixed = new bool[magnitude * magnitude * magnitude * magnitude];
 		this.board = new int[magnitude * magnitude * magnitude * magnitude];
 
 		for (size_t i = 0; i < this.board.length; ++i)
