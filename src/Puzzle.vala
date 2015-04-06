@@ -4,6 +4,7 @@ namespace Sudoku
 public class Puzzle : Object
 {
 	public int magnitude { get; construct set; }
+	private bool[] fixed;
 	private int[] board;
 
 	public Puzzle ()
@@ -19,6 +20,7 @@ public class Puzzle : Object
 
 		for (size_t i = 0; i < this.board.length; ++i)
 		{
+			fixed[i] = false;
 			board[i] = -1;
 		}
 	}
@@ -43,7 +45,7 @@ public class Puzzle : Object
 		requires (x >= 0 && x < magnitude * magnitude)
 		requires (y >= 0 && y < magnitude * magnitude)
 	{
-		return false;
+		return fixed[y * magnitude * magnitude + x];
 	}
 }
 
