@@ -9,6 +9,21 @@ class Puzzle : Gtk.DrawingArea
 
 	private Gdk.Point active_tile;
 
+	private string[] alphabet =
+		{ ""
+		, "1"
+		, "1234"
+		, "123456789"
+		, "0123456789ABCDEF"
+		, "0123456789ABCDEFGHIJKLMNO"
+		, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		};
+
+	private string get_character (int num)
+	{
+		return this.alphabet[this.puzzle.magnitude][num].to_string ();
+	}
+
 	public Puzzle (Sudoku.Puzzle puzzle)
 	{
 		Object ();
@@ -39,6 +54,9 @@ class Puzzle : Gtk.DrawingArea
 		tile.x = (int) ev.x / (this.tile + 1);
 		tile.y = (int) ev.y / (this.tile + 1);
 
+		if (this.puzzle.is_fixed (tile.x, tile.y))
+			return true;
+
 		this.active_tile = tile;
 		this.queue_draw_area (0, 0, this.dimension, this.dimension);
 
@@ -47,6 +65,9 @@ class Puzzle : Gtk.DrawingArea
 
 	private bool on_key_press_event (Gdk.EventKey ev)
 	{
+		if (this.active_tile.x == -1 || this.active_tile.y == -1)
+			return true;
+
 		switch (ev.keyval)
 		{
 			case Gdk.Key.BackSpace:
@@ -112,7 +133,7 @@ class Puzzle : Gtk.DrawingArea
 					, j * (this.tile + 1)
 					);
 
-				/* render background */
+				/* render active background */
 				if (i == this.active_tile.x && j == this.active_tile.y)
 				{
 					ctx.set_source_rgb (0.46, 0.61, 0.80);
@@ -120,10 +141,18 @@ class Puzzle : Gtk.DrawingArea
 					ctx.fill ();
 				}
 
+				/* render fixed background */
+				if (this.puzzle.is_fixed (i, j))
+				{
+					ctx.set_source_rgb (0.8, 0.8, 0.8);
+					ctx.rectangle (1, 1, this.tile - 1, this.tile - 1);
+					ctx.fill ();
+				}
+
 				/* render text */
 				if (this.puzzle.get_at (i, j) != -1)
 				{
-					string num = (this.puzzle.get_at (i, j) + 1).to_string ();
+					string num = this.get_character (this.puzzle.get_at (i, j));
 
 					ctx.set_source_rgb (0.0, 0.0, 0.0);
 					ctx.set_font_size (this.tile / 2.0);
