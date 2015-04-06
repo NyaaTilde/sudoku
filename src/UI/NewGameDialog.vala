@@ -18,7 +18,15 @@ class NewGameDialog : Gtk.Dialog
 
 	construct
 	{
+		Gtk.ComboBoxText difficulty_combobox = new Gtk.ComboBoxText ();
 		Gtk.Container content_area = this.get_content_area ();
+
+		difficulty_combobox.append ("easy", "Easy");
+		difficulty_combobox.append ("normal", "Normal");
+		difficulty_combobox.append ("hard", "Hard");
+		difficulty_combobox.append ("very-hard", "Very Hard");
+		difficulty_combobox.active_id = "normal";
+
 		this.grid = new Gtk.Grid ();
 
 		this.grid.expand = true;
@@ -32,6 +40,8 @@ class NewGameDialog : Gtk.Dialog
 			( "Magnitude"
 			, new Gtk.SpinButton (new Gtk.Adjustment (3, 3, 6, 1, 0, 0), 1, 0)
 			);
+
+		add_option ("Difficulty", difficulty_combobox);
 
 		content_area.margin = 4;
 		content_area.add (grid);
