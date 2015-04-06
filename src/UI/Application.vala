@@ -36,7 +36,6 @@ class Application : Gtk.Application
 		box.valign = Gtk.Align.CENTER;
 		box.add (puzzle);
 
-		this.window.set_default_size (800, 600);
 		this.window.set_titlebar (header_bar);
 		this.window.add (box);
 
