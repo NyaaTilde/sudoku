@@ -21,10 +21,15 @@ class Puzzle : Gtk.DrawingArea
 			= this.tile * this.puzzle.magnitude * this.puzzle.magnitude
 			+ this.puzzle.magnitude * this.puzzle.magnitude + 1;
 
-		this.set_events (Gdk.EventMask.BUTTON_PRESS_MASK);
+		this.set_events
+			( Gdk.EventMask.BUTTON_PRESS_MASK
+			| Gdk.EventMask.KEY_PRESS_MASK
+			);
+		this.can_focus = true;
 		this.set_size_request ((int) dimension, (int) dimension);
 
 		this.button_press_event.connect (on_button_press_event);
+		this.key_press_event.connect (on_key_press_event);
 		this.draw.connect (on_draw);
 	}
 
@@ -36,6 +41,31 @@ class Puzzle : Gtk.DrawingArea
 
 		this.active_tile = tile;
 		this.queue_draw_area (0, 0, this.dimension, this.dimension);
+
+		return true;
+	}
+
+	private bool on_key_press_event (Gdk.EventKey ev)
+	{
+		switch (ev.keyval)
+		{
+			case Gdk.Key.BackSpace:
+			case Gdk.Key.Delete:
+				this.puzzle.set_at (this.active_tile.x, this.active_tile.y, -1);
+				this.active_tile = { -1, -1 };
+				this.queue_draw_area (0, 0, this.dimension, this.dimension);
+				break;
+			default:
+				if (ev.keyval < '1' || ev.keyval > '9')
+					return true;
+
+				int num = (int) ev.keyval - '0';
+
+				this.puzzle.set_at (this.active_tile.x, this.active_tile.y, num - 1);
+				this.active_tile = { -1, -1 };
+				this.queue_draw_area (0, 0, this.dimension, this.dimension);
+				break;
+		}
 
 		return true;
 	}
@@ -74,7 +104,6 @@ class Puzzle : Gtk.DrawingArea
 		{
 			for (int j = 0; j < num_tiles; ++j)
 			{
-				string num = this.puzzle.get_at (i, j).to_string ();
 				Cairo.TextExtents te;
 
 				ctx.save ();
@@ -92,8 +121,10 @@ class Puzzle : Gtk.DrawingArea
 				}
 
 				/* render text */
-				if (num != "-1")
+				if (this.puzzle.get_at (i, j) != -1)
 				{
+					string num = (this.puzzle.get_at (i, j) + 1).to_string ();
+
 					ctx.set_source_rgb (0.0, 0.0, 0.0);
 					ctx.set_font_size (this.tile / 2.0);
 					ctx.text_extents (num, out te);
