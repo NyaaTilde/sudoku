@@ -34,7 +34,6 @@ class Application : Gtk.Application
 
 		box.halign = Gtk.Align.CENTER;
 		box.valign = Gtk.Align.CENTER;
-		box.expand = true;
 		box.add (puzzle);
 
 		this.window.set_default_size (800, 600);

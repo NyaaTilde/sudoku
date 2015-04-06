@@ -3,7 +3,7 @@ namespace Sudoku
 
 public class Puzzle : Object
 {
-	public uint magnitude { get; construct set; }
+	public int magnitude { get; construct set; }
 	private int[] board;
 
 	public Puzzle ()
@@ -11,7 +11,7 @@ public class Puzzle : Object
 		this.with_magnitude (3);
 	}
 
-	public Puzzle.with_magnitude (uint magnitude)
+	public Puzzle.with_magnitude (int magnitude)
 		requires (magnitude > 0)
 	{
 		this.magnitude = magnitude;
@@ -46,11 +46,10 @@ public class Board
 	private CellList[] rows;
 	private CellList[] columns;
 	private CellList[] boxes;
-	
+
 	private int magnitude;
 	private int sizes;
-	
-	
+
 	public Board()
 	{
 		this.with_magnitude(3);
