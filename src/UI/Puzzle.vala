@@ -72,6 +72,12 @@ class Puzzle : Gtk.DrawingArea
 		tile.x = (int) ev.x / (this.tile + 1);
 		tile.y = (int) ev.y / (this.tile + 1);
 
+		if
+			(  tile.x >= this.puzzle.magnitude * this.puzzle.magnitude
+			|| tile.y >= this.puzzle.magnitude * this.puzzle.magnitude
+			)
+			return true;
+
 		if (this.puzzle.is_fixed (tile.x, tile.y))
 			return true;
 
