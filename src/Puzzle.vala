@@ -185,6 +185,15 @@ public class Board
 		
 		return str;
 	}
+	
+	public Board copy()
+	{
+		Board b = new Board.with_magnitude(magnitude);
+		for (int i = 0; i < cells.length; i++)
+			b.cells[i].set_state(cells[i]);
+		
+		return b;
+	}
 }
 
 public class CellList
@@ -251,6 +260,18 @@ public class Cell
 		for (int i = 0; i < options.length; i++)
 			options[i] = i == index;
 		number = index;
+	}
+	
+	public void set_state(Cell cell)
+	{
+		number = cell.number;
+		x = cell.x;
+		y = cell.y;
+		
+		if (options.length != cell.options.length)
+			options = new bool[cell.options.length];
+		for (int i = 0; i < options.length; i++)
+			options[i] = cell.options[i];
 	}
 	
 	public string to_string()
