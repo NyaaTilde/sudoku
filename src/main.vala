@@ -20,25 +20,20 @@ int main (string[] args)
 		{0,9,0,0,0,0,4,0,0}
 	};
 
-	timer.start();
 	Board board = new Board./*with_magnitude(3);//*/with_grid(grid);
 	board = board.solve();
-	timer.stop();
-	ulong time;
-	timer.elapsed(out time);
 
 	print("Forward checing:\n");
-	print("Solving time: " + (time / 1000).to_string() + "ms\n");
+	print("Solving time: " + (timer.elapsed() * 1000).to_string() + "ms\n");
 	print("States expanded: " + Board.states_expanded.to_string() + "\n");
 	print(board.to_string() + "\n");
 
 	timer.start();
 	board = new Board.with_grid(grid);
 	board = board.solveBTS();
-	timer.elapsed(out time);
 
 	print("Back tracking:\n");
-	print("Solving time: " + (time / 1000).to_string() + "ms\n");
+	print("Solving time: " + (timer.elapsed() * 1000).to_string() + "ms\n");
 	print("States expanded: " + Board.states_expanded.to_string() + "\n");
 	print(board.to_string() + "\n");
 

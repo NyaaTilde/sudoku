@@ -196,19 +196,29 @@ public class Board
 	}
 	private CELL_SEARCH_ENUM find_option(out int row, out int col)
 	{
-	    for (row = 0; row < sizes; row++)
-            for (col= 0; col < sizes; col++)
-                switch (get_cell_at(row, col).has_multiple_options())
+		row = -1;
+		col = -1;
+	    for (int r = 0; r < sizes; r++)
+            for (int c = 0; c < sizes; c++)
+                switch (get_cell_at(r, c).has_multiple_options())
                 {
                 case CELL_SEARCH_ENUM.UNASSIGNED:
-                    return CELL_SEARCH_ENUM.UNASSIGNED;
+			if (row == -1 && col == -1)
+			{
+				row = r;
+				col = c;
+			}
+			break;
                 case CELL_SEARCH_ENUM.FAILURE:
                     return CELL_SEARCH_ENUM.FAILURE;
                 }
 
-        row = 0;
-        col = 0;
-        return CELL_SEARCH_ENUM.FINISHED;
+		if (row != -1 && col != -1)
+			return CELL_SEARCH_ENUM.UNASSIGNED;
+
+		row = 0;
+		col = 0;
+		return CELL_SEARCH_ENUM.FINISHED;
 	}
 
 	private bool find_unassigned(out int row, out int col)
