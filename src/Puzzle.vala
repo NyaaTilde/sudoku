@@ -117,9 +117,15 @@ public class Board
 	public Board? solve()
 	{
 		states_expanded = 0;
-		//return solved(this);
-		solvedBTS();
-		return this;
+		return solved(this);
+	}
+
+	public Board? solveBTS()
+	{
+		states_expanded = 0;
+		Board b = copy();
+		b.solvedBTS();
+		return b;
 	}
 
 	private CellList get_box_at(int row, int col)
@@ -154,18 +160,16 @@ public class Board
         {
             if (board.has_option(row, col, i))
             {
+		states_expanded++;
                 Board b = board.copy();
                 Cell c = b.get_cell_at(row, col);
 		c.set_only_possibility(i);
-                b.rule_out_cells(row, col, i, c);
-                states_expanded++;
+                if (!b.rule_out_cells(row, col, i, c))
+			continue;
 
 		//print(b.to_string() + "\n-----------------------------\n");
                 if ((b = solved(b)) != null)
                     return b;
-
-                //set_cell_at(row, col, -1);
-                //this = b;
             }
         }
         return null;
@@ -211,7 +215,7 @@ public class Board
 	{
 	    for(row = 0; row < sizes; row++)
             for(col= 0; col < sizes; col++)
-                if(get_cell_at(col,row).number == -1)
+                if(get_cell_at(row, col).number == -1)
                     return true;
         row = 0;
         col = 0;
@@ -222,7 +226,7 @@ public class Board
 	{
 	    if (!rows[row].is_used(num))
             if (!columns[col].is_used(num))
-                if (!get_box_at(col,row).is_used(num))
+                if (!get_box_at(row, col).is_used(num))
                     return true;
         return false;
 	}
@@ -260,11 +264,13 @@ public class Board
 		return b;
 	}
 
-	public void rule_out_cells(int row, int col, int num, Cell cell)
+	public bool rule_out_cells(int row, int col, int num, Cell cell)
 	{
-	    rows[row].rule_out(cell, num);
-	    columns[col].rule_out(cell, num);
-	    get_box_at(row, col).rule_out(cell, num);
+		if (rows[row].rule_out(cell, num) &&
+	    		columns[col].rule_out(cell, num) &&
+			get_box_at(row, col).rule_out(cell, num))
+			return true;
+		return false;
 	}
 }
 
@@ -277,13 +283,16 @@ public class CellList
 		this.cells = cells;
 	}
 
-	public void rule_out(Cell cell, int index)
+	public bool rule_out(Cell cell, int index)
 	{
 		foreach (Cell c in cells)
 		{
 			if(cell != c)
-				c.set_possibility(index, false);
+				if (!c.set_possibility(index, false))
+					return false;
 		}
+
+		return true;
 	}
 
 	public bool is_used(int number)
@@ -326,6 +335,8 @@ public class Cell
 		options = new bool[possibilities];
 		this.row = row;
 		this.col = col;
+
+		number = -1;
 		for (int i = 0; i < options.length; i++)
 			options[i] = true;
 	}
@@ -335,11 +346,11 @@ public class Cell
 		return options[index];
 	}
 
-	public void set_possibility(int index, bool value)
+	public bool set_possibility(int index, bool value)
 	{
 		options[index] = value;
 
-		int opts = 0;
+		/*int opts = 0;
 		int n = -1;
 
 		for (int i = 0; i < options.length; i++)
@@ -353,12 +364,16 @@ public class Cell
 			if (opts >= 2)
 			{
 				number = -1;
-				return;
+				return true;
 			}
 		}
 
-		if (opts == 1)
-			number = n;
+		if (opts == 0)
+			return false;
+		else if (opts == 1)
+			number = n;*/
+
+		return true;
 	}
 
 	public void set_only_possibility(int index)
@@ -382,17 +397,13 @@ public class Cell
 
 	public CELL_SEARCH_ENUM has_multiple_options()
 	{
-        int opts = 0;
+		if (number != -1)
+			return CELL_SEARCH_ENUM.FINISHED;
+ 		for (int i = 0; i < options.length; i++)
+			if (options[i])
+				return CELL_SEARCH_ENUM.UNASSIGNED;
 
-        for (int i = 0; i < options.length; i++)
-        {
-            if (options[i])
-                opts++;
-            if (opts >= 2)
-                return CELL_SEARCH_ENUM.UNASSIGNED;
-        }
-
-		return opts == 0 ? CELL_SEARCH_ENUM.FAILURE : CELL_SEARCH_ENUM.FINISHED;
+		return CELL_SEARCH_ENUM.FAILURE;
 	}
 
 	public string to_string()
