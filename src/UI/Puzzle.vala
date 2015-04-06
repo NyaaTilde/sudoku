@@ -19,11 +19,6 @@ class Puzzle : Gtk.DrawingArea
 		, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		};
 
-	private string get_character (int num)
-	{
-		return this.alphabet[this.puzzle.magnitude][num].to_string ();
-	}
-
 	public Puzzle (Sudoku.Puzzle puzzle)
 	{
 		Object ();
@@ -48,6 +43,16 @@ class Puzzle : Gtk.DrawingArea
 		this.draw.connect (on_draw);
 	}
 
+	private void redraw ()
+	{
+		this.queue_draw_area (0, 0, this.dimension, this.dimension);
+	}
+
+	private string get_character (int num)
+	{
+		return this.alphabet[this.puzzle.magnitude][num].to_string ();
+	}
+
 	private bool on_button_press_event (Gdk.EventButton ev)
 	{
 		Gdk.Point tile = { };
@@ -58,7 +63,7 @@ class Puzzle : Gtk.DrawingArea
 			return true;
 
 		this.active_tile = tile;
-		this.queue_draw_area (0, 0, this.dimension, this.dimension);
+		this.redraw ();
 
 		return true;
 	}
@@ -74,7 +79,7 @@ class Puzzle : Gtk.DrawingArea
 			case Gdk.Key.Delete:
 				this.puzzle.set_at (this.active_tile.x, this.active_tile.y, -1);
 				this.active_tile = { -1, -1 };
-				this.queue_draw_area (0, 0, this.dimension, this.dimension);
+				this.redraw ();
 				break;
 			default:
 				if (ev.keyval < '1' || ev.keyval > '9')
@@ -84,7 +89,7 @@ class Puzzle : Gtk.DrawingArea
 
 				this.puzzle.set_at (this.active_tile.x, this.active_tile.y, num - 1);
 				this.active_tile = { -1, -1 };
-				this.queue_draw_area (0, 0, this.dimension, this.dimension);
+				this.redraw ();
 				break;
 		}
 
