@@ -30,7 +30,7 @@ class Puzzle : Gtk.Grid
 					/* for each column in box */
 					for (int l = 0; l < this.puzzle.magnitude; ++l)
 					{
-						subgrid.attach (new Gtk.Label ("Test"), k, l, 1, 1);
+						subgrid.attach (new Tile (), k, l, 1, 1);
 					}
 				}
 
