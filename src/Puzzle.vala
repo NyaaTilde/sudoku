@@ -49,7 +49,8 @@ public class Board
 
 	private int magnitude;
 	private int sizes;
-    public int states_expanded { get; set;}
+
+	public static int states_expanded { get; private set; }
 
 	public Board()
 	{
@@ -64,17 +65,17 @@ public class Board
 
 		int empty = magnitude <= 3 ? 0 : -1;
 
-		for (int i = 0; i < sizes; i++)
-			for (int j = 0; j < sizes; j++)
+		for (int row = 0; row < sizes; row++)
+			for (int col = 0; col < sizes; col++)
 			{
-				int number = grid[i, j];
-				Cell cell = cells[i * sizes + j];
+				int number = grid[row, col];
+				Cell cell = cells[row * sizes + col];
 
-				if(number != -1)
+				if (number != empty)
 				{
-                    cell.set_only_possibility(number - 1 - empty);
-                    rule_out_cells(i, j, number, cell);
-                }
+					cell.set_only_possibility(number - 1 - empty);
+					rule_out_cells(row, col, number - 1 - empty, cell);
+                		}
 			}
 	}
 
@@ -82,7 +83,6 @@ public class Board
 	{
 		this.magnitude = magnitude;
 		sizes = magnitude * magnitude;
-        states_expanded = 0;
 		cells = new Cell[sizes*sizes];
 		rows = new CellList[sizes];
 		columns = new CellList[sizes];
@@ -95,46 +95,49 @@ public class Board
 		Cell[] column_list = new Cell[sizes];
 		Cell[] box_list = new Cell[sizes];
 
-		for (int i = 0; i < sizes; i++)
+		for (int row = 0; row < sizes; row++)
 		{
-			for (int j = 0; j < sizes; j++)
+			for (int col = 0; col < sizes; col++)
 			{
-				row_list[j] = cells[i*sizes + j];
-				column_list[j] = cells[j*sizes + i];
+				row_list[col] = cells[row*sizes + col];
+				column_list[col] = cells[col*sizes + row];
 
-				int x = magnitude * (i % magnitude) + (j % magnitude);
-				int y = magnitude * (i / magnitude) + (j / magnitude);
+				int x = magnitude * (row % magnitude) + (col % magnitude);
+				int y = magnitude * (row / magnitude) + (col / magnitude);
 
-				box_list[j] = cells[x + y * sizes];
+				box_list[col] = cells[x + y * sizes];
 			}
 
-			rows[i] = new CellList(row_list);
-			columns[i] = new CellList(column_list);
-			boxes[i] = new CellList(box_list);
+			rows[row] = new CellList(row_list);
+			columns[row] = new CellList(column_list);
+			boxes[row] = new CellList(box_list);
 		}
 	}
 
 	public Board? solve()
 	{
-		return solved(this);
+		states_expanded = 0;
+		//return solved(this);
+		solvedBTS();
+		return this;
 	}
 
-	private CellList get_box_at(int x, int y)
+	private CellList get_box_at(int row, int col)
 	{
-		x /= magnitude;
-		y /= magnitude;
+		row /= magnitude;
+		col /= magnitude;
 
-		return boxes[x + y * magnitude];
+		return boxes[col + row * magnitude];
 	}
 
-	private Cell get_cell_at(int x, int y)
+	private Cell get_cell_at(int row, int col)
 	{
-		return cells[x+y*(sizes)];
+		return cells[col + row * sizes];
 	}
 
-	private void set_cell_at(int x, int y, int number)
+	private void set_cell_at(int row, int col, int number)
 	{
-		cells[x+y*(sizes)].number = number;
+		cells[col + row * sizes].number = number;
 	}
 
 	private static Board? solved(Board board)
@@ -149,24 +152,26 @@ public class Board
 	    }
         for (int i = 0; i < board.sizes; i++)
         {
-            if(board.has_option(row,col,i))
+            if (board.has_option(row, col, i))
             {
-                print("Do u even go here?");
                 Board b = board.copy();
-                b.set_cell_at(col,row,i);
-                b.rule_out_cells(row, col, i, b.get_cell_at(col, row));
-                board.states_expanded +=1;
+                Cell c = b.get_cell_at(row, col);
+		c.set_only_possibility(i);
+                b.rule_out_cells(row, col, i, c);
+                states_expanded++;
+
+		//print(b.to_string() + "\n-----------------------------\n");
                 if ((b = solved(b)) != null)
                     return b;
 
-                //set_cell_at(col, row, -1);
+                //set_cell_at(row, col, -1);
                 //this = b;
             }
         }
         return null;
 	}
 
-	public bool solvedBST()
+	public bool solvedBTS()
 	{
         int row, col;
         if(!find_unassigned(out row, out col))
@@ -175,11 +180,11 @@ public class Board
         {
             if(is_safe(row,col,i))
             {
-                states_expanded +=1;
-                set_cell_at(col, row, i);
-                if(solvedBST())
+                states_expanded++;
+                set_cell_at(row, col, i);
+                if(solvedBTS())
                     return true;
-                set_cell_at(col,row,-1);
+                set_cell_at(row, col, -1);
             }
         }
         return false;
@@ -189,7 +194,7 @@ public class Board
 	{
 	    for (row = 0; row < sizes; row++)
             for (col= 0; col < sizes; col++)
-                switch (get_cell_at(col,row).has_multiple_options())
+                switch (get_cell_at(row, col).has_multiple_options())
                 {
                 case CELL_SEARCH_ENUM.UNASSIGNED:
                     return CELL_SEARCH_ENUM.UNASSIGNED;
@@ -224,11 +229,12 @@ public class Board
 
 	private bool has_option(int row, int col, int num)
 	{
-	    if (rows[row].has_option(num) &&
+	    /*if (rows[row].has_option(num) &&
             columns[col].has_option(num) &&
-            get_box_at(col,row).has_option(num))
+            get_box_at(row, col).has_option(num))
             return true;
-        return false;
+	        return false;*/
+		return get_cell_at(row, col).get_possibility(num);
 	}
 
 	public string to_string()
@@ -258,7 +264,7 @@ public class Board
 	{
 	    rows[row].rule_out(cell, num);
 	    columns[col].rule_out(cell, num);
-	    get_box_at(col,row).rule_out(cell, num);
+	    get_box_at(row, col).rule_out(cell, num);
 	}
 }
 
@@ -275,8 +281,8 @@ public class CellList
 	{
 		foreach (Cell c in cells)
 		{
-		    if(cell != c)
-                c.set_possibility(index, false);
+			if(cell != c)
+				c.set_possibility(index, false);
 		}
 	}
 
@@ -315,13 +321,13 @@ public class Cell
 {
 	private bool[] options;
 
-	public Cell(int possibilities, int x, int y)
+	public Cell(int possibilities, int row, int col)
 	{
 		options = new bool[possibilities];
-		this.x = x;
-		this.y = y;
+		this.row = row;
+		this.col = col;
 		for (int i = 0; i < options.length; i++)
-            options[i] = true;
+			options[i] = true;
 	}
 
 	public bool get_possibility(int index)
@@ -332,6 +338,27 @@ public class Cell
 	public void set_possibility(int index, bool value)
 	{
 		options[index] = value;
+
+		int opts = 0;
+		int n = -1;
+
+		for (int i = 0; i < options.length; i++)
+		{
+			if (options[i])
+			{
+				opts++;
+				n = i;
+			}
+
+			if (opts >= 2)
+			{
+				number = -1;
+				return;
+			}
+		}
+
+		if (opts == 1)
+			number = n;
 	}
 
 	public void set_only_possibility(int index)
@@ -344,8 +371,8 @@ public class Cell
 	public void set_state(Cell cell)
 	{
 		number = cell.number;
-		x = cell.x;
-		y = cell.y;
+		row = cell.row;
+		col = cell.col;
 
 		if (options.length != cell.options.length)
 			options = new bool[cell.options.length];
@@ -365,7 +392,7 @@ public class Cell
                 return CELL_SEARCH_ENUM.UNASSIGNED;
         }
 
-        return opts == 0 ? CELL_SEARCH_ENUM.FAILURE : CELL_SEARCH_ENUM.FINISHED;
+		return opts == 0 ? CELL_SEARCH_ENUM.FAILURE : CELL_SEARCH_ENUM.FINISHED;
 	}
 
 	public string to_string()
@@ -379,8 +406,8 @@ public class Cell
 	}
 
 	public int number { get; set; }
-	public int x { get; private set; }
-	public int y { get; private set; }
+	public int row { get; private set; }
+	public int col { get; private set; }
 }
 
 public enum CELL_SEARCH_ENUM

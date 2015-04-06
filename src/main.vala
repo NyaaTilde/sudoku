@@ -2,7 +2,7 @@ int main (string[] args)
 {
 	Sudoku.UI.Application app = new Sudoku.UI.Application ();
 
-	return app.run (args);
+	//return app.run (args);
 
     Timer timer = new Timer();
 	int[,] grid =
@@ -18,13 +18,14 @@ int main (string[] args)
 		{0,9,0,0,0,0,4,0,0}
 	};
 
-	Sudoku.Board board = new Sudoku.Board.with_grid(grid);
-	board.solve();
+	Sudoku.Board board = new Sudoku.Board.with_magnitude(3);//with_grid(grid);
+	board = board.solve();
 	timer.stop();
-    ulong time;
-    timer.elapsed(out time);
+	ulong time;
+	timer.elapsed(out time);
 
-    print("Solving time: " + (time / 1000).to_string() + "ms\n");
+	print("Solving time: " + (time / 1000).to_string() + "ms\n");
+	print("States expanded: " + Sudoku.Board.states_expanded.to_string() + "\n");
 	print(board.to_string() + "\n");
 
 	return 0;
