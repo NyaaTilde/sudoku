@@ -46,11 +46,11 @@ public class Board
 	private CellList[] rows;
 	private CellList[] columns;
 	private CellList[] boxes;
-	
+
 	private int magnitude;
 	private int sizes;
-	
-	
+
+
 	public Board()
 	{
 		this.with_magnitude(3);
@@ -71,6 +71,8 @@ public class Board
 				Cell cell = cells[i * sizes + j];
 
 				cell.set_only_possibility(number - 1 - empty);
+				if(number != empty)
+                    rule_out_cells(i, j, number, cell);
 			}
 	}
 
@@ -109,7 +111,7 @@ public class Board
 			boxes[i] = new CellList(box_list);
 		}
 	}
-	
+
 	public void solve()
 	{
 		solved();
@@ -132,7 +134,7 @@ public class Board
 	{
 		cells[x+y*(sizes)].number = number;
 	}
-	
+
 	private bool solved()
 	{
 	    int row, col;
@@ -142,10 +144,13 @@ public class Board
         {
             if(is_safe(row,col,i))
             {
+                //Board b = copy();
                 set_cell_at(col,row,i);
+                rule_out_cells(row, col, i, get_cell_at(col, row));
                 if(solved())
                     return true;
                 set_cell_at(col, row, -1);
+                //this = b;
             }
         }
         return false;
@@ -169,30 +174,40 @@ public class Board
                 if (!get_box_at(col,row).is_used(num))
                     return true;
         return false;
+	}
+	private bool has_possibilities(int row, int col, int num)
+	{
+
 
 	}
 
 	public string to_string()
 	{
 		string str = "";
-		
+
 		for (int i = 0; i < sizes; i++)
 		{
 			str += rows[i].to_string();
 			if (i != rows.length -1)
 				str += "\n";
 		}
-		
+
 		return str;
 	}
-	
+
 	public Board copy()
 	{
 		Board b = new Board.with_magnitude(magnitude);
 		for (int i = 0; i < cells.length; i++)
 			b.cells[i].set_state(cells[i]);
-		
+
 		return b;
+	}
+	public void rule_out_cells(int row, int col, int num, Cell cell)
+	{
+	    rows[row].rule_out(cell, num);
+	    columns[col].rule_out(cell, num);
+	    get_box_at(col,row).rule_out(cell, num);
 	}
 }
 
@@ -205,12 +220,15 @@ public class CellList
 		this.cells = cells;
 	}
 
-	public void rule_out(int index)
+	public void rule_out(Cell cell, int index)
 	{
 		foreach (Cell c in cells)
-			c.set_possibility(index, false);
+		{
+		    if(cell != c)
+                c.set_possibility(index, false);
+		}
 	}
-	
+
 	public bool is_used(int number)
 	{
 	    foreach (Cell c in cells)
@@ -218,18 +236,18 @@ public class CellList
                 return true;
         return false;
 	}
-	
+
 	public string to_string()
 	{
 		string str = "";
-		
+
 		for (int i = 0; i < cells.length; i++)
 		{
 			str += cells[i].to_string();
 			if (i != cells.length -1)
 				str += " ";
 		}
-		
+
 		return str;
 	}
 }
@@ -261,26 +279,26 @@ public class Cell
 			options[i] = i == index;
 		number = index;
 	}
-	
+
 	public void set_state(Cell cell)
 	{
 		number = cell.number;
 		x = cell.x;
 		y = cell.y;
-		
+
 		if (options.length != cell.options.length)
 			options = new bool[cell.options.length];
 		for (int i = 0; i < options.length; i++)
 			options[i] = cell.options[i];
 	}
-	
+
 	public string to_string()
 	{
 		string n = (number+1).to_string();
-		
+
 		for (int i = n.length; i < 3; i++)
 			n = " " + n;
-		
+
 		return n;
 	}
 
