@@ -1,7 +1,8 @@
 Greetings!
 ==========
 
-The Sudoku program requires a Vala compiler and a C compiler.
+The Sudoku program requires a Vala compiler and a C compiler, and is only
+supported on GNU/Linux operating systems.
 
 Mininmum Version Required
 -------------------------
