@@ -34,6 +34,8 @@ class Puzzle : Gtk.DrawingArea
 		this.button_press_event.connect (on_button_press_event);
 		this.key_press_event.connect (on_key_press_event);
 		this.draw.connect (on_draw);
+
+		this.puzzle.changed.connect (redraw);
 	}
 
 	private void redraw ()

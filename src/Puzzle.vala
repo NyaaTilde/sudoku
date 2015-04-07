@@ -7,6 +7,8 @@ public class Puzzle : Object
 	private bool[] fixed;
 	private Board board;
 
+	public signal void changed ();
+
 	public Puzzle ()
 	{
 		this.with_magnitude (3);
@@ -30,7 +32,7 @@ public class Puzzle : Object
 		requires (x >= 0 && y < magnitude * magnitude)
 		requires (y >= 0 && y < magnitude * magnitude)
 	{
-		return this.board.get_cell_at (x, y).number;
+		return this.board.get_cell_at (y, x).number;
 	}
 
 	public void set_at (int x, int y, int value)
@@ -38,14 +40,20 @@ public class Puzzle : Object
 		requires (y >= 0 && y < magnitude * magnitude)
 		requires (value >= -1 && value < magnitude * magnitude)
 	{
-		this.board.set_cell_at (x, y, value);
+		this.board.get_cell_at (y, x).set_only_possibility (value);
 	}
 
 	public bool is_fixed (int x, int y)
 		requires (x >= 0 && x < magnitude * magnitude)
 		requires (y >= 0 && y < magnitude * magnitude)
 	{
-		return fixed[y * magnitude * magnitude + x];
+		return fixed[x * magnitude * magnitude + y];
+	}
+
+	public void solve ()
+	{
+		this.board = this.board.solveCPS ();
+		this.changed ();
 	}
 }
 
@@ -156,7 +164,7 @@ public class Board
 		return cells[col + row * sizes];
 	}
 
-	public void set_cell_at(int row, int col, int number)
+	private void set_cell_at(int row, int col, int number)
 	{
 		cells[col + row * sizes].number = number;
 	}
@@ -472,7 +480,7 @@ public class Cell
 	public void set_only_possibility(int index)
 	{
 		for (int i = 0; i < options.length; i++)
-			options[i] = i == index;
+			options[i] = i == index || index == -1;
 		number = index;
 	}
 

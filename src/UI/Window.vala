@@ -20,6 +20,7 @@ class Window : Gtk.ApplicationWindow
 		UI.Commands commands = new UI.Commands (this.application, this);
 
 		commands.new_game.connect (on_new_game);
+		commands.solve.connect (on_solve);
 
 		this.frame = new Gtk.AspectFrame (null, 0.5f, 0.5f, 1.0f, false);
 		this.frame.expand = true;
@@ -43,6 +44,11 @@ class Window : Gtk.ApplicationWindow
 	private void on_new_game (int magnitude, string difficulty)
 	{
 		this.active_puzzle = new Sudoku.Puzzle.with_magnitude (magnitude);
+	}
+
+	private void on_solve ()
+	{
+		this.active_puzzle.solve ();
 	}
 
 	private void on_notify (ParamSpec ps)
