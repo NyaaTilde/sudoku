@@ -66,7 +66,21 @@ class Window : Gtk.ApplicationWindow
 
 	private void on_solve ()
 	{
-		this.active_puzzle.solve ();
+		bool solution = this.active_puzzle.solve ();
+
+		if ( ! solution)
+		{
+			Gtk.Dialog dialog = new Gtk.MessageDialog
+				( this
+				, Gtk.DialogFlags.DESTROY_WITH_PARENT
+				, Gtk.MessageType.ERROR
+				, Gtk.ButtonsType.CLOSE
+				, "No valid solution."
+				);
+
+			dialog.run ();
+			dialog.destroy ();
+		}
 	}
 
 	private void on_clear ()

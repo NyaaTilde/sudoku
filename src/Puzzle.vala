@@ -87,14 +87,29 @@ public class Puzzle : Object
 		}
 	}
 
-	public void solve ()
+	public bool solve ()
 	{
-		this.board = this.board.solveCPS().first_result;
+		if (check_conflicts ())
+			return false;
+
+		SolveResult? solution = this.board.solveCPS (2);
+
+		if
+			(  solution == null
+			|| solution.first_result == null
+			|| solution.results != 1
+			)
+			return false;
+
+		this.board = solution.first_result;
 		this.changed ();
+
+		return true;
 	}
 
-	private void check_conflicts ()
+	private bool check_conflicts ()
 	{
+		bool conflict = false;
 		ArrayList<unowned Cell> cells = this.board.check_conflicts ();
 
 		for (size_t i = 0; i < this.conflicts.length; ++i)
@@ -104,8 +119,11 @@ public class Puzzle : Object
 
 		foreach (unowned Cell cell in cells)
 		{
+			conflict = true;
 			set_conflict (cell.col, cell.row);
 		}
+
+		return conflict;
 	}
 
 	private void set_conflict (int x, int y)
