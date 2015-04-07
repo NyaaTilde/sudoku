@@ -190,6 +190,24 @@ class Puzzle : Gtk.DrawingArea
 					string str = this.get_character (num);
 
 					ctx.set_source_rgb (0.0, 0.0, 0.0);
+
+					if (this.puzzle.is_fixed (i, j))
+					{
+						ctx.select_font_face
+							( "sans-serif"
+							, Cairo.FontSlant.NORMAL
+							, Cairo.FontWeight.BOLD
+							);
+					}
+					else
+					{
+						ctx.select_font_face
+							( "sans-serif"
+							, Cairo.FontSlant.NORMAL
+							, Cairo.FontWeight.NORMAL
+							);
+					}
+
 					ctx.set_font_size (0.5);
 					ctx.text_extents (str, out te);
 					ctx.move_to
