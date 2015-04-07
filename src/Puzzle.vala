@@ -37,6 +37,26 @@ public class Puzzle : Object
 			conflicts[i] = false;
 			fixed[i] = false;
 		}
+
+		Board board = Board.create_unfinished
+			( this.magnitude
+			, (int) new Rand ().next_int ()
+			, num_to_remove (this.difficulty)
+			);
+
+		for (int i = 0; i < magnitude * magnitude; ++i)
+		{
+			for (int j = 0; j < magnitude * magnitude; ++j)
+			{
+				unowned Cell c = board.get_cell_at (i, j);
+
+				if (c.number != -1)
+				{
+					this.set_at (i, j, c.number);
+					fixed[i * magnitude * magnitude + j] = true;
+				}
+			}
+		}
 	}
 
 	/* (0, 0) is at the top-left, with y increasing downwards, unfortunately */
@@ -115,39 +135,39 @@ public class Puzzle : Object
 				switch (difficulty)
 				{
 					case "easy":
-						return 10;
+						return 35;
 					case "normal":
-						return 20;
-					case "hard":
-						return 30;
-					case "very-hard":
 						return 40;
+					case "hard":
+						return 48;
+					case "very-hard":
+						return 53;
 				}
 				break;
 			case 4:
 				switch (difficulty)
 				{
 					case "easy":
-						return 10;
+						return 50;
 					case "normal":
-						return 20;
+						return 55;
 					case "hard":
-						return 30;
+						return 62;
 					case "very-hard":
-						return 40;
+						return 70;
 				}
 				break;
 			case 5:
 				switch (difficulty)
 				{
 					case "easy":
-						return 10;
+						return 100;
 					case "normal":
-						return 20;
+						return 120;
 					case "hard":
-						return 30;
+						return 130;
 					case "very-hard":
-						return 40;
+						return 160;
 				}
 				break;
 		}
