@@ -21,6 +21,7 @@ class Window : Gtk.ApplicationWindow
 
 		commands.new_game.connect (on_new_game);
 		commands.solve.connect (on_solve);
+		commands.clear.connect (on_clear);
 
 		this.frame = new Gtk.AspectFrame (null, 0.5f, 0.5f, 1.0f, false);
 		this.frame.expand = true;
@@ -49,6 +50,11 @@ class Window : Gtk.ApplicationWindow
 	private void on_solve ()
 	{
 		this.active_puzzle.solve ();
+	}
+
+	private void on_clear ()
+	{
+		this.active_puzzle.clear ();
 	}
 
 	private void on_notify (ParamSpec ps)

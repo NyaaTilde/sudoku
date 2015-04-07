@@ -8,6 +8,7 @@ class Commands : Gtk.Menu
 
 	public signal void new_game (int magnitude, string difficulty);
 	public signal void solve ();
+	public signal void clear ();
 
 	public Commands (Gtk.Application application, Gtk.Window parent_window)
 	{
@@ -21,11 +22,13 @@ class Commands : Gtk.Menu
 	{
 		Gtk.MenuItem new_game = new Gtk.MenuItem.with_mnemonic ("_New Game");
 		Gtk.MenuItem solve_game = new Gtk.MenuItem.with_label ("Solve");
+		Gtk.MenuItem clear_game = new Gtk.MenuItem.with_label ("Clear");
 		Gtk.MenuItem about = new Gtk.MenuItem.with_mnemonic ("_About");
 		Gtk.MenuItem quit = new Gtk.MenuItem.with_label ("Quit");
 
 		this.add (new_game);
 		this.add (solve_game);
+		this.add (clear_game);
 		this.add (new Gtk.SeparatorMenuItem ());
 		this.add (about);
 		this.add (quit);
@@ -45,6 +48,10 @@ class Commands : Gtk.Menu
 
 		solve_game.activate.connect (() => {
 			this.solve ();
+		});
+
+		clear_game.activate.connect (() => {
+			this.clear ();
 		});
 
 		about.activate.connect (() => {

@@ -50,6 +50,22 @@ public class Puzzle : Object
 		return fixed[x * magnitude * magnitude + y];
 	}
 
+	public void clear ()
+	{
+		int num_tiles = this.magnitude * this.magnitude;
+
+		for (int x = 0; x < num_tiles; ++x)
+		{
+			for (int y = 0; y < num_tiles; ++y)
+			{
+				if ( ! this.is_fixed (x, y))
+				{
+					this.set_at (x, y, -1);
+				}
+			}
+		}
+	}
+
 	public void solve ()
 	{
 		this.board = this.board.solveCPS ();
