@@ -155,7 +155,7 @@ public class Board
 	private static Board? solvedCPS(Board board)
 	{
 		int row, col;
-		switch (board.find_option(out row, out col))
+		switch (board.most_constrained_option(out row, out col))
 		{
 		case CELL_SEARCH_ENUM.FINISHED:
 			return board;
@@ -169,13 +169,8 @@ public class Board
 			{
 				states_expanded++;
 				Board b = board.copy();
-				print("Start propagate.\n");
 				if (!b.propagate(row, col, i))
-				{
-					print("Continue!\n");
 					continue;
-				}
-				print("Finish propagate.\n");
 				if ((b = solvedCPS(b)) != null)
 					return b;
 			}
@@ -230,6 +225,39 @@ public class Board
 		return false;
 
 	}
+
+    private CELL_SEARCH_ENUM most_constrained_option(out int row, out int col)
+	{
+        row = -1;
+        col = -1;
+        int minvalue = sizes+1;
+        for (int r = 0; r < sizes; r++)
+            for (int c = 0; c < sizes; c++)
+            {
+                int tmp = 0;
+                switch (get_cell_at(r, c).get_options(out tmp))
+                {
+                    case CELL_SEARCH_ENUM.UNASSIGNED:
+                        if(tmp < minvalue)
+                        {
+                            minvalue = tmp;
+                            row = r;
+                            col = c;
+                            /*if(minvalue == 2)
+                                return CELL_SEARCH_ENUM.UNASSIGNED;*/
+                        }
+                        break;
+                    case CELL_SEARCH_ENUM.FAILURE:
+                        return CELL_SEARCH_ENUM.FAILURE;
+                }
+            }
+        if (row != -1 && col != -1)
+            return CELL_SEARCH_ENUM.UNASSIGNED;
+        row = 0;
+        col = 0;
+        return CELL_SEARCH_ENUM.FINISHED;
+	}
+
 	private CELL_SEARCH_ENUM find_option(out int row, out int col)
 	{
 		row = -1;
@@ -482,6 +510,20 @@ public class Cell
 
 		return CELL_SEARCH_ENUM.FAILURE;
 	}
+	public CELL_SEARCH_ENUM get_options(out int opts)
+	{
+        opts = 0;
+        if (number != -1)
+			return CELL_SEARCH_ENUM.FINISHED;
+        for(int i = 0; i < options.length; i++)
+            if (options[i])
+                opts++;
+        if(opts > 0)
+            return CELL_SEARCH_ENUM.UNASSIGNED;
+        return CELL_SEARCH_ENUM.FAILURE;
+	}
+
+
 
 	public string to_string()
 	{
