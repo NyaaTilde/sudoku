@@ -146,9 +146,30 @@ class Puzzle : Gtk.DrawingArea
 				ctx.translate (i, j);
 
 				/* render active background */
-				if (i == this.active_tile.x && j == this.active_tile.y)
+				if (this.active_tile.x == -1 || this.active_tile.y == -1)
+				{
+					/* do nothing */
+				}
+				else if (i == this.active_tile.x && j == this.active_tile.y)
 				{
 					ctx.set_source_rgb (0.46, 0.61, 0.80);
+					ctx.rectangle (0, 0, 1, 1);
+					ctx.fill ();
+				}
+				else if
+					(  i == this.active_tile.x
+					|| j == this.active_tile.y
+					|| i / this.puzzle.magnitude
+						== this.active_tile.x / this.puzzle.magnitude
+					&& j / this.puzzle.magnitude
+						== this.active_tile.y / this.puzzle.magnitude
+					)
+				{
+					ctx.set_source_rgb
+						( 0.730 + (1.0 - 0.730)*0.7
+						, 0.825 + (1.0 - 0.825)*0.7
+						, 0.900 + (1.0 - 0.900)*0.7
+						);
 					ctx.rectangle (0, 0, 1, 1);
 					ctx.fill ();
 				}
