@@ -84,7 +84,7 @@ public class Board
 		}
 	}
 	
-	public static Board create_unfinished(int magnitude, int seed, float difficulty)
+	public static Board create_unfinished(int magnitude, int seed, int difficulty)
 	{
 		Rand rnd = new Rand.with_seed(seed);
 		
@@ -109,7 +109,7 @@ public class Board
 		}
 	}
 	
-	private static Board delete_random(Board board, Rand rnd, float amount)
+	private static Board delete_random(Board board, Rand rnd, int amount)
 	{
 		Board b = board.copy();
 		
