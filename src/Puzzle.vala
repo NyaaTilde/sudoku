@@ -112,7 +112,7 @@ public class Puzzle : Object
 		if (check_conflicts ())
 			return false;
 
-		SolveResult? solution = this.board.solveCPS (2);
+		SolveResult? solution = this.board.solveCPS (this.magnitude > 3 ? 1 : 2);
 
 		if
 			(  solution == null
@@ -135,13 +135,13 @@ public class Puzzle : Object
 				switch (difficulty)
 				{
 					case "easy":
-						return 35;
-					case "normal":
-						return 40;
-					case "hard":
 						return 48;
+					case "normal":
+						return 50;
+					case "hard":
+						return 52;
 					case "very-hard":
-						return 53;
+						return 54;
 				}
 				break;
 			case 4:
