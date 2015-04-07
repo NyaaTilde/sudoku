@@ -131,25 +131,36 @@ class Puzzle : Gtk.DrawingArea
 		ctx.rectangle (0, 0, this.dimension, this.dimension);
 		ctx.fill ();
 
-		for (int i = 0; i < num_tiles + 1; ++i)
+		/* render thin lines */
+		for (int i = 0; i <= num_tiles; ++i)
 		{
 			if (i % this.puzzle.magnitude == 0)
-			{
-				ctx.set_source_rgb (0.0, 0.0, 0.0);
-			}
-			else
-			{
-				ctx.set_source_rgb (0.5, 0.5, 0.5);
-			}
+				continue;
+
+			ctx.set_source_rgb (0.5, 0.5, 0.5);
 
 			ctx.move_to (0, i * (this.tile + 1));
 			ctx.line_to (dimension, i * (this.tile + 1));
 
 			ctx.move_to (i * (this.tile + 1), 0);
 			ctx.line_to (i * (this.tile + 1), dimension);
-
-			ctx.stroke ();
 		}
+
+		ctx.stroke ();
+
+		/* render thick lines */
+		for (int i = 0; i <= num_tiles; i += this.puzzle.magnitude)
+		{
+			ctx.set_source_rgb (0.0, 0.0, 0.0);
+
+			ctx.move_to (0, i * (this.tile + 1));
+			ctx.line_to (dimension, i * (this.tile + 1));
+
+			ctx.move_to (i * (this.tile + 1), 0);
+			ctx.line_to (i * (this.tile + 1), dimension);
+		}
+
+		ctx.stroke ();
 
 		for (int i = 0; i < num_tiles; ++i)
 		{
