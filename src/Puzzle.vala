@@ -107,6 +107,54 @@ public class Puzzle : Object
 		return true;
 	}
 
+	private int num_to_remove (string difficulty)
+	{
+		switch (this.magnitude)
+		{
+			case 3:
+				switch (difficulty)
+				{
+					case "easy":
+						return 10;
+					case "normal":
+						return 20;
+					case "hard":
+						return 30;
+					case "very-hard":
+						return 40;
+				}
+				break;
+			case 4:
+				switch (difficulty)
+				{
+					case "easy":
+						return 10;
+					case "normal":
+						return 20;
+					case "hard":
+						return 30;
+					case "very-hard":
+						return 40;
+				}
+				break;
+			case 5:
+				switch (difficulty)
+				{
+					case "easy":
+						return 10;
+					case "normal":
+						return 20;
+					case "hard":
+						return 30;
+					case "very-hard":
+						return 40;
+				}
+				break;
+		}
+
+		return 0;
+	}
+
 	private bool check_conflicts ()
 	{
 		bool conflict = false;
