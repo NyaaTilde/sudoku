@@ -3,9 +3,10 @@ using Gee;
 namespace Sudoku
 {
 
+[Compact]
 public class CellList
 {
-	private (unowned Cell)[] cells;
+	public (unowned Cell)[] cells;
 
 	public CellList(Cell[] cells)
 	{

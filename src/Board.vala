@@ -114,16 +114,16 @@ public class Board
 	public ArrayList<Cell> check_conflicts()
 	{
 		var list = new ArrayList<unowned Cell>();
-		foreach (CellList cl in rows)
+		foreach (unowned CellList cl in rows)
 			list.add_all(cl.get_conflicts());
-		foreach (CellList cl in columns)
+		foreach (unowned CellList cl in columns)
 			list.add_all(cl.get_conflicts());
-		foreach (CellList cl in boxes)
+		foreach (unowned CellList cl in boxes)
 			list.add_all(cl.get_conflicts());
 		return list;
 	}
 
-	private CellList get_box_at(int row, int col)
+	private unowned CellList get_box_at(int row, int col)
 	{
 		row /= magnitude;
 		col /= magnitude;
@@ -156,7 +156,7 @@ public class Board
 
 			states_expanded++;
 			Board b = board.copy();
-			if (states_expanded % 1000 == 0)
+			if (states_expanded % 10000 == 0)
 			{
 				print("States: " + states_expanded.to_string() + "\n");
 				print(b.to_string() + "\n------------------------------------\n");
