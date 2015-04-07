@@ -68,6 +68,8 @@ class Puzzle : Gtk.DrawingArea
 
 	private bool on_button_press_event (Gdk.EventButton ev)
 	{
+		this.grab_focus ();
+
 		Gdk.Point tile = { };
 		tile.x = (int) ev.x / (this.tile + 1);
 		tile.y = (int) ev.y / (this.tile + 1);

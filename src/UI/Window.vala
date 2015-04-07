@@ -18,6 +18,8 @@ class Window : Gtk.ApplicationWindow
 		Gtk.Image image = new Gtk.Image.from_icon_name ("emblem-system-symbolic", Gtk.IconSize.BUTTON);
 		UI.Commands commands = new UI.Commands (this.application, this);
 
+		commands.new_game.connect (on_new_game);
+
 		this.box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
 		this.notify.connect (this.on_notify);
 		this.active_puzzle = puzzle;
@@ -37,6 +39,11 @@ class Window : Gtk.ApplicationWindow
 		this.add (box);
 	}
 
+	private void on_new_game (int magnitude, string difficulty)
+	{
+		this.active_puzzle = new Sudoku.Puzzle.with_magnitude (magnitude);
+	}
+
 	private void on_notify (ParamSpec ps)
 	{
 		switch (ps.name)
@@ -47,6 +54,7 @@ class Window : Gtk.ApplicationWindow
 				});
 
 				this.box.add (new UI.Puzzle (this.active_puzzle));
+				this.box.show_all ();
 				break;
 		}
 	}

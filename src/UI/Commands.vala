@@ -6,6 +6,8 @@ class Commands : Gtk.Menu
 	public Gtk.Application application { get; construct set; }
 	public Gtk.Window parent_window { get; construct set; }
 
+	public signal void new_game (int magnitude, string difficulty);
+
 	public Commands (Gtk.Application application, Gtk.Window parent_window)
 	{
 		Object
@@ -29,8 +31,13 @@ class Commands : Gtk.Menu
 
 		new_game.activate.connect (() => {
 			NewGameDialog dialog = new NewGameDialog (this.parent_window);
-			dialog.run ();
+			int response = dialog.run ();
 			dialog.destroy ();
+
+			if (response == Gtk.ResponseType.OK)
+			{
+				this.new_game (dialog.magnitude, dialog.difficulty);
+			}
 		});
 
 		about.activate.connect (() => {

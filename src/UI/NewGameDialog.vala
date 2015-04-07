@@ -31,6 +31,7 @@ class NewGameDialog : Gtk.Dialog
 			);
 		Gtk.ComboBoxText difficulty_combobox = new Gtk.ComboBoxText ();
 		Gtk.Container content_area = this.get_content_area ();
+		Gtk.SpinButton magnitude_spinbutton = new Gtk.SpinButton (magnitude_adjustment, 1, 0);
 
 		difficulty_combobox.append ("easy", "Easy");
 		difficulty_combobox.append ("normal", "Normal");
@@ -47,18 +48,14 @@ class NewGameDialog : Gtk.Dialog
 		this.add_button ("New Game", Gtk.ResponseType.OK);
 		this.add_button ("Cancel", Gtk.ResponseType.CANCEL);
 
-		add_option
-			( "Magnitude"
-			, new Gtk.SpinButton (magnitude_adjustment, 1, 0)
-			);
-
+		add_option ("Magnitude", magnitude_spinbutton);
 		add_option ("Difficulty", difficulty_combobox);
 
 		content_area.margin = 4;
 		content_area.add (grid);
 		content_area.show_all ();
 
-		magnitude_adjustment.changed.connect (() => {
+		magnitude_spinbutton.value_changed.connect (() => {
 			this.magnitude = (int) magnitude_adjustment.value;
 		});
 
