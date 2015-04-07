@@ -33,7 +33,7 @@ public class Board
 		while ((++magnitude * magnitude) < grid.length[0]);
 		this.with_magnitude(magnitude);
 
-		int empty = -1;//magnitude <= 3 ? 0 : -1;
+		int empty = -1;
 
 		for (int row = 0; row < sizes; row++)
 			for (int col = 0; col < sizes; col++)
@@ -149,6 +149,7 @@ public class Board
 		shuffle(numbers, rnd);
 
 		unowned Cell[] cells = list.cells;
+
 		for (int i = 0; i < cells.length; i++)
 			cells[i].set_only_possibility(numbers[i]);
 
@@ -249,12 +250,15 @@ public class Board
 
 			result.states_expanded++;
 			Board b = board.copy();
-			/*if (result.states_expanded % 1000 == 0)
+			
+#if 0
+			if (result.states_expanded % 1000 == 0)
 			{
 				print("States: " + result.states_expanded.to_string() + "\n");
 				print("Solutions: " + result.results.to_string() + "\n");
 				print(board.to_string() + "\n------------------------------------\n");
-			}*/
+			}
+#endif
 
 			SolveResult r = null;
 			if (!b.propagate(row, col, val) || (!((r = solvedCPS(b, result)).finished)))
@@ -344,12 +348,11 @@ public class Board
 							minvalue = tmp;
 							row = r;
 							col = c;
+
 							if ((val = rows[row].get_only_possible_cell(tmpcell)) == -1)
 								if((val = columns[col].get_only_possible_cell(tmpcell)) == -1)
 									if((val = get_box_at(row, col).get_only_possible_cell(tmpcell)) == -1)
 										val = tmpcell.get_constrained_value();
-							/*if(minvalue == 2)
-								return CELL_SEARCH_ENUM.UNASSIGNED;*/
 						}
 						break;
 					case CELL_SEARCH_ENUM.FAILURE:
@@ -398,6 +401,7 @@ public class Board
 		row = 0;
 		col = 0;
 		val = 0;
+
 		return CELL_SEARCH_ENUM.FINISHED;
 	}
 
@@ -407,8 +411,10 @@ public class Board
 			for(col= 0; col < sizes; col++)
 				if(get_cell_at(row, col).number == -1)
 					return true;
+
 		row = 0;
 		col = 0;
+
 		return false;
 	}
 
@@ -418,6 +424,7 @@ public class Board
 			if (!columns[col].is_used(num))
 				if (!get_box_at(row, col).is_used(num))
 					return true;
+
 		return false;
 	}
 
@@ -430,6 +437,7 @@ public class Board
 	{
 		unowned Cell c = get_cell_at(row, col);
 		c.set_only_possibility(value);
+
 		if (!rule_out_cells(row, col, value, c))
 			return false;
 
@@ -462,6 +470,7 @@ public class Board
 		for (int i = 0; i < sizes; i++)
 		{
 			str += rows[i].to_string();
+
 			if (i != rows.length -1)
 				str += "\n";
 		}
@@ -472,6 +481,7 @@ public class Board
 	public Board copy()
 	{
 		Board b = new Board.with_magnitude(magnitude);
+
 		for (int i = 0; i < cells.length; i++)
 			b.cells[i].set_state(cells[i]);
 
@@ -484,6 +494,7 @@ public class Board
 			columns[col].rule_out(cell, num) &&
 			get_box_at(row, col).rule_out(cell, num))
 			return true;
+
 		return false;
 	}
 
