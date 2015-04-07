@@ -29,6 +29,7 @@ public class CellList
 	{
 		var list = new ArrayList<unowned Cell>();
 		int[] numbers = new int[cells.length];
+
 		foreach (unowned Cell c in cells)
 			if(c.number != -1)
 			{
@@ -36,10 +37,12 @@ public class CellList
 				if(numbers[c.number]>1)
 					list.add(c);
 			}
+
 		foreach (unowned Cell c in list)
 			foreach (unowned Cell c2 in cells)
 				if(c.number == c2.number && c != c2)
 					list.add(c2);
+
 		return list;
 
 	}
@@ -49,11 +52,14 @@ public class CellList
 		foreach (unowned Cell c in cells)
 			if (c.is_constrained())
 				return c;
+
 		return null;
 	}
+
 	public int get_only_possible_cell(Cell cell)
 	{
 		bool[] opts = cell.get_all_options();
+
 		foreach (unowned Cell c in cells)
 		{
 			if (cell != c)
@@ -65,11 +71,13 @@ public class CellList
 				}
 			}
 		}
+
 		for(int i = 0; i < opts.length; i++)
 		{
 			if(opts[i])
 				return i;
 		}
+
 		return -1;
 	}
 
@@ -78,6 +86,7 @@ public class CellList
 		foreach (unowned Cell c in cells)
 			if (number == c.number)
 				return true;
+
 		return false;
 	}
 
@@ -86,6 +95,7 @@ public class CellList
 		foreach (unowned Cell c in cells)
 			if (!c.get_possibility(number))
 				return false;
+
 		return true;
 	}
 

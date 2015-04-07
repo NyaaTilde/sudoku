@@ -83,47 +83,48 @@ public class Board
 			boxes[row] = new CellList(box_list);
 		}
 	}
-	
+
 	public static Board create_unfinished(int magnitude, int seed, int difficulty)
 	{
 		Rand rnd = new Rand.with_seed(seed);
-		
+
 		while (true)
 		{
 			Board board = create_random(magnitude, rnd);
 			Board b = delete_random(board, rnd, difficulty);
-		
+
 			int[,] numbers = new int[b.sizes, b.sizes];
-			
+
 			for (int row = 0; row < b.sizes; row++)
 				for (int col = 0; col < b.sizes; col++)
 					numbers[col, row] = b.get_cell_at(row, col).number;
-			
+
 			Board solve = new Board.with_grid(numbers);
-			
+
 			if (magnitude > 3)
 				return solve;
-			
+
 			SolveResult r = new SolveResult(2);
- 			r = solvedCPS(solve, r);
+			r = solvedCPS(solve, r);
+
 			if (r.results != 1)
 				continue;
-			
+
 			return b;
 		}
 	}
-	
+
 	private static Board delete_random(Board board, Rand rnd, int amount)
 	{
 		Board b = board.copy();
-		
+
 		for (int i = 0; i < amount; i++)
 		{
 			while (true)
 			{
 				int r = rnd.int_range(0, b.cells.length);
 				unowned Cell c = b.cells[r];
-				
+
 				if (c.number != -1)
 				{
 					c.number = -1;
@@ -131,28 +132,29 @@ public class Board
 				}
 			}
 		}
-		
+
 		return b;
 	}
-	
+
 	public static Board create_random(int magnitude, Rand rnd)
 	{
 		Board board = new Board.with_magnitude(magnitude);
-		
+
 		unowned CellList list = board.rows[0];
 		int[] numbers = new int[board.sizes];
-		
+
 		for (int i = 0; i < numbers.length; i++)
 			numbers[i] = i;
+
 		shuffle(numbers, rnd);
-		
+
 		unowned Cell[] cells = list.cells;
 		for (int i = 0; i < cells.length; i++)
 			cells[i].set_only_possibility(numbers[i]);
-		
+
 		SolveResult r = new SolveResult(1);
 		r = solvedCPS(board, r);
-		
+
 		return r.first_result;
 	}
 
@@ -172,12 +174,14 @@ public class Board
 
 		states_expanded = 0;
 		SolveResult result = new SolveResult (num);
+
 		return solvedCPS(board, result);
 	}
 
 	public Board? solveFCS()
 	{
 		states_expanded = 0;
+
 		return solvedFCS(this);
 	}
 
@@ -186,18 +190,23 @@ public class Board
 		states_expanded = 0;
 		Board b = copy();
 		b.solvedBTS();
+
 		return b;
 	}
 
 	public ArrayList<Cell> check_conflicts()
 	{
 		var list = new ArrayList<unowned Cell>();
+
 		foreach (unowned CellList cl in rows)
 			list.add_all(cl.get_conflicts());
+
 		foreach (unowned CellList cl in columns)
 			list.add_all(cl.get_conflicts());
+
 		foreach (unowned CellList cl in boxes)
 			list.add_all(cl.get_conflicts());
+
 		return list;
 	}
 
@@ -230,7 +239,7 @@ public class Board
 					if (result.first_result == null)
 						result.first_result = board;
 					result.results++;
-					
+
 					if (result.results >= result.find_count && result.find_count != -1)
 						result.finished = true;
 					return result;
@@ -246,14 +255,14 @@ public class Board
 				print("Solutions: " + result.results.to_string() + "\n");
 				print(board.to_string() + "\n------------------------------------\n");
 			}*/
-			
+
 			SolveResult r = null;
 			if (!b.propagate(row, col, val) || (!((r = solvedCPS(b, result)).finished)))
 			{
 				board.get_cell_at(row, col).set_possibility(val, false);
 				continue;
 			}
-			
+
 			return result;
 		}
 	}
@@ -261,6 +270,7 @@ public class Board
 	private static Board? solvedFCS(Board board)
 	{
 		int row, col, val;
+
 		switch(board.find_option(out row, out col, out val))
 		{
 			case CELL_SEARCH_ENUM.FINISHED:
@@ -268,6 +278,7 @@ public class Board
 			case CELL_SEARCH_ENUM.FAILURE:
 				return null;
 		}
+
 		for (int i = 0; i < board.sizes; i++)
 		{
 			if (board.has_option(row, col, i))
@@ -276,33 +287,40 @@ public class Board
 				Board b = board.copy();
 				unowned Cell c = b.get_cell_at(row, col);
 				c.set_only_possibility(i);
+
 				if (!b.rule_out_cells(row, col, i, c))
 					continue;
+
 				if ((b = solvedFCS(b)) != null)
 					return b;
 			}
 		}
+
 		return null;
 	}
 
 	public bool solvedBTS()
 	{
 		int row, col;
-		if(!find_unassigned(out row, out col))
+
+		if ( ! find_unassigned(out row, out col))
 			return true;
-		for(int i = 0; i < sizes; i++)
+
+		for (int i = 0; i < sizes; i++)
 		{
-			if(is_safe(row,col,i))
+			if (is_safe(row,col,i))
 			{
 				states_expanded++;
 				set_cell_at(row, col, i);
+
 				if(solvedBTS())
 					return true;
+
 				set_cell_at(row, col, -1);
 			}
 		}
-		return false;
 
+		return false;
 	}
 
 	private CELL_SEARCH_ENUM most_constrained_option(out int row, out int col, out int val)
@@ -311,11 +329,13 @@ public class Board
 		col = -1;
 		val = -1;
 		int minvalue = sizes+1;
+
 		for (int r = 0; r < sizes; r++)
 			for (int c = 0; c < sizes; c++)
 			{
 				int tmp = 0;
 				unowned Cell tmpcell = get_cell_at(r,c);
+
 				switch (tmpcell.get_options(out tmp))
 				{
 					case CELL_SEARCH_ENUM.UNASSIGNED:
@@ -336,10 +356,13 @@ public class Board
 						return CELL_SEARCH_ENUM.FAILURE;
 				}
 			}
+
 		if (row != -1 && col != -1)
 			return CELL_SEARCH_ENUM.UNASSIGNED;
+
 		row = 0;
 		col = 0;
+
 		return CELL_SEARCH_ENUM.FINISHED;
 	}
 
@@ -348,11 +371,12 @@ public class Board
 		row = -1;
 		col = -1;
 		val = -1;
+
 		for (int r = 0; r < sizes; r++)
 			for (int c = 0; c < sizes; c++)
 			{
 				unowned Cell cell = get_cell_at(r, c);
-				
+
 				switch (cell.has_multiple_options())
 				{
 				case CELL_SEARCH_ENUM.UNASSIGNED:
@@ -365,7 +389,7 @@ public class Board
 					break;
 				case CELL_SEARCH_ENUM.FAILURE:
 					return CELL_SEARCH_ENUM.FAILURE;
-                }
+				}
 			}
 
 		if (row != -1)
@@ -422,6 +446,7 @@ public class Board
 		while (true)
 		{
 			unowned Cell? c = list.get_constrained_cell();
+
 			if (c == null)
 				return true;
 
@@ -461,7 +486,7 @@ public class Board
 			return true;
 		return false;
 	}
-	
+
 	private static void shuffle(int[] numbers, Rand r)
 	{
 		for (int i = 0; i < numbers.length; i++)

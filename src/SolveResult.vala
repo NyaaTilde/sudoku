@@ -11,7 +11,7 @@ public class SolveResult
 		states_expanded = 0;
 		find_count = num;
 	}
-	
+
 	public Board? first_result { get; set; }
 	public int results { get; set; }
 	public bool finished { get; set; }
