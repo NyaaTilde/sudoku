@@ -2,9 +2,9 @@ using Sudoku;
 
 int main (string[] args)
 {
-	//Sudoku.UI.Application app = new Sudoku.UI.Application ();
+	Sudoku.UI.Application app = new Sudoku.UI.Application ();
 
-	//return app.run (args);
+	return app.run (args);
 
     Timer timer = new Timer();
 	int[,] grid =
