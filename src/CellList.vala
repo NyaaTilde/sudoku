@@ -61,6 +61,7 @@ public class CellList
 				for (int i = 0; i < opts.length; i++)
 				{
 						if(opts[i] == c.get_possibility(i))
+							//cell.set_possibility (i, false);
 							opts[i] = false;
 				}
 			}
