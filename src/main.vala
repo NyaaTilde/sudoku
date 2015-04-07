@@ -39,7 +39,7 @@ int main (string[] args)
 
 	timer.start();
 	Board board = new Board.with_magnitude(5);//*/with_grid(grid, true);
-	SolveResult r = board.solveCPS();
+	SolveResult r = board.solveCPS(1);
 	board = r.first_result;
 
 	print("Constraint propagation:\n");
