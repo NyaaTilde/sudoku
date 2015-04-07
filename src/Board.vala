@@ -91,10 +91,11 @@ public class Board
 		}
 	}
 
-	public Board? solveCPS()
+	public SolveResult? solveCPS()
 	{
 		states_expanded = 0;
-		return solvedCPS(this);
+		SolveResult result = new SolveResult();
+		return solvedCPS(this, result);
 	}
 
 	public Board? solveFCS()
@@ -141,34 +142,42 @@ public class Board
 		cells[col + row * sizes].number = number;
 	}
 
-	private static Board? solvedCPS(Board board)
+	private static SolveResult? solvedCPS(Board board, SolveResult result)
 	{
 		while (true)
 		{
 			int row, col, val;
 			switch (board.most_constrained_option(out row, out col, out val))
 			{
-			case CELL_SEARCH_ENUM.FINISHED:
-				return board;
-			case CELL_SEARCH_ENUM.FAILURE:
-				return null;
+				case CELL_SEARCH_ENUM.FINISHED:
+					if (result.first_result == null)
+						result.first_result = board;
+					result.results++;
+					
+					if (result.results >= result.find_count && result.find_count != -1)
+						result.finished = true;
+					return result;
+				case CELL_SEARCH_ENUM.FAILURE:
+					return result;
 			}
 
-			states_expanded++;
+			result.states_expanded++;
 			Board b = board.copy();
-			if (states_expanded % 10000 == 0)
+			/*if (states_expanded % 100 == 0)
 			{
-				print("States: " + states_expanded.to_string() + "\n");
-				print(b.to_string() + "\n------------------------------------\n");
-			}
+				print("States: " + result.states_expanded.to_string() + "\n");
+				print("Solutions: " + result.results.to_string() + "\n");
+				print(board.to_string() + "\n------------------------------------\n");
+			}*/
 			
-			if (!b.propagate(row, col, val) || (b = solvedCPS(b)) == null)
+			SolveResult r = null;
+			if (!b.propagate(row, col, val) || (!((r = solvedCPS(b, result)).finished)))
 			{
 				board.get_cell_at(row, col).set_possibility(val, false);
 				continue;
 			}
 			
-			return b;
+			return result;
 		}
 	}
 
@@ -266,7 +275,7 @@ public class Board
 			for (int c = 0; c < sizes; c++)
 			{
 				unowned Cell cell = get_cell_at(r, c);
-
+				
 				switch (cell.has_multiple_options())
 				{
 				case CELL_SEARCH_ENUM.UNASSIGNED:

@@ -89,7 +89,7 @@ public class Puzzle : Object
 
 	public void solve ()
 	{
-		this.board = this.board.solveCPS ();
+		this.board = this.board.solveCPS().first_result;
 		this.changed ();
 	}
 

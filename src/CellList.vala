@@ -25,7 +25,7 @@ public class CellList
 		return true;
 	}
 
-	public ArrayList<Cell> get_conflicts()
+	public ArrayList<unowned Cell> get_conflicts()
 	{
 		var list = new ArrayList<unowned Cell>();
 		int[] numbers = new int[cells.length];
@@ -61,8 +61,7 @@ public class CellList
 				for (int i = 0; i < opts.length; i++)
 				{
 						if(opts[i] == c.get_possibility(i))
-							//cell.set_possibility (i, false);
-							opts[i] = false;
+							cell.set_possibility (i, false);
 				}
 			}
 		}
