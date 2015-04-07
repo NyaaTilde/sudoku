@@ -100,6 +100,10 @@ public class Board
 					numbers[col, row] = b.get_cell_at(row, col).number;
 			
 			Board solve = new Board.with_grid(numbers);
+			
+			if (magnitude > 3)
+				return solve;
+			
 			SolveResult r = new SolveResult(2);
  			r = solvedCPS(solve, r);
 			if (r.results != 1)
