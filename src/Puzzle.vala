@@ -1,25 +1,41 @@
+using Gee;
+
 namespace Sudoku
 {
 
 public class Puzzle : Object
 {
-	public uint magnitude { get; construct set; }
-	private int[] board;
+	public int magnitude { get; construct set; }
+	public string difficulty { get; construct set; }
+	private bool[] conflicts;
+	private bool[] fixed;
+	private Board board;
+
+	public signal void changed ();
 
 	public Puzzle ()
 	{
 		this.with_magnitude (3);
 	}
 
-	public Puzzle.with_magnitude (uint magnitude)
-		requires (magnitude > 0)
+	public Puzzle.with_magnitude (int magnitude)
+	{
+		this.with_magnitude_and_difficulty (magnitude, "normal");
+	}
+
+	public Puzzle.with_magnitude_and_difficulty (int magnitude, string difficulty)
+		requires (magnitude > 0 && magnitude < 7)
 	{
 		this.magnitude = magnitude;
-		this.board = new int[magnitude * magnitude * magnitude * magnitude];
+		this.difficulty = difficulty;
+		this.conflicts = new bool[magnitude * magnitude * magnitude * magnitude];
+		this.fixed = new bool[magnitude * magnitude * magnitude * magnitude];
+		this.board = new Board.with_magnitude (magnitude);
 
-		for (size_t i = 0; i < this.board.length; ++i)
+		for (size_t i = 0; i < this.conflicts.length; ++i)
 		{
-			board[i] = -1;
+			conflicts[i] = false;
+			fixed[i] = false;
 		}
 	}
 
@@ -28,7 +44,7 @@ public class Puzzle : Object
 		requires (x >= 0 && y < magnitude * magnitude)
 		requires (y >= 0 && y < magnitude * magnitude)
 	{
-		return board[y * magnitude * magnitude + x];
+		return this.board.get_cell_at (y, x).number;
 	}
 
 	public void set_at (int x, int y, int value)
@@ -36,7 +52,65 @@ public class Puzzle : Object
 		requires (y >= 0 && y < magnitude * magnitude)
 		requires (value >= -1 && value < magnitude * magnitude)
 	{
-		board[y * magnitude * magnitude + x] = value;
+		this.board.get_cell_at (y, x).set_only_possibility (value);
+		this.check_conflicts ();
+		this.changed ();
+	}
+
+	public bool is_conflicted (int x, int y)
+		requires (x >= 0 && x < magnitude * magnitude)
+		requires (y >= 0 && y < magnitude * magnitude)
+	{
+		return conflicts[x * magnitude * magnitude + y];
+	}
+
+	public bool is_fixed (int x, int y)
+		requires (x >= 0 && x < magnitude * magnitude)
+		requires (y >= 0 && y < magnitude * magnitude)
+	{
+		return fixed[x * magnitude * magnitude + y];
+	}
+
+	public void clear ()
+	{
+		int num_tiles = this.magnitude * this.magnitude;
+
+		for (int x = 0; x < num_tiles; ++x)
+		{
+			for (int y = 0; y < num_tiles; ++y)
+			{
+				if ( ! this.is_fixed (x, y))
+				{
+					this.set_at (x, y, -1);
+				}
+			}
+		}
+	}
+
+	public void solve ()
+	{
+		this.board = this.board.solveCPS ();
+		this.changed ();
+	}
+
+	private void check_conflicts ()
+	{
+		ArrayList<Cell> cells = this.board.check_conflicts ();
+
+		for (size_t i = 0; i < this.conflicts.length; ++i)
+		{
+			conflicts[i] = false;
+		}
+
+		foreach (var cell in cells)
+		{
+			set_conflict (cell.col, cell.row);
+		}
+	}
+
+	private void set_conflict (int x, int y)
+	{
+		conflicts[x * magnitude * magnitude + y] = true;
 	}
 }
 
@@ -141,6 +215,18 @@ public class Board
 		return b;
 	}
 
+	public ArrayList<Cell> check_conflicts()
+	{
+		var list = new ArrayList<Cell>();
+		foreach (CellList cl in rows)
+			list.add_all(cl.get_conflicts());
+		foreach (CellList cl in columns)
+			list.add_all(cl.get_conflicts());
+		foreach (CellList cl in boxes)
+			list.add_all(cl.get_conflicts());
+		return list;
+	}
+
 	private CellList get_box_at(int row, int col)
 	{
 		row /= magnitude;
@@ -149,7 +235,7 @@ public class Board
 		return boxes[col + row * magnitude];
 	}
 
-	private Cell get_cell_at(int row, int col)
+	public Cell get_cell_at(int row, int col)
 	{
 		return cells[col + row * sizes];
 	}
@@ -164,7 +250,7 @@ public class Board
 		while (true)
 		{
 			int row, col, val;
-			switch (board.find_option(out row, out col, out val))
+			switch (board.most_constrained_option(out row, out col, out val))
 			{
 			case CELL_SEARCH_ENUM.FINISHED:
 				return board;
@@ -247,7 +333,8 @@ public class Board
 			for (int c = 0; c < sizes; c++)
 			{
 				int tmp = 0;
-				switch (get_cell_at(r, c).get_options(out tmp))
+				Cell tmpcell = get_cell_at(r,c);
+				switch (tmpcell.get_options(out tmp))
 				{
 					case CELL_SEARCH_ENUM.UNASSIGNED:
 						if(tmp < minvalue)
@@ -255,6 +342,10 @@ public class Board
 							minvalue = tmp;
 							row = r;
 							col = c;
+							if ((val = rows[row].get_only_possible_cell(tmpcell)) == -1)
+								if((val = columns[col].get_only_possible_cell(tmpcell)) == -1)
+									if((val = get_box_at(row, col).get_only_possible_cell(tmpcell)) == -1)
+										val = tmpcell.get_constrained_value();
 							/*if(minvalue == 2)
 								return CELL_SEARCH_ENUM.UNASSIGNED;*/
 						}
@@ -297,7 +388,7 @@ public class Board
 
 		if (row != -1)
 			return CELL_SEARCH_ENUM.UNASSIGNED;
-		
+
 		row = 0;
 		col = 0;
 		val = 0;
@@ -312,16 +403,16 @@ public class Board
 					return true;
 		row = 0;
 		col = 0;
-        return false;
+		return false;
 	}
 
 	private bool is_safe(int row, int col, int num)
 	{
-	    if (!rows[row].is_used(num))
-            if (!columns[col].is_used(num))
-                if (!get_box_at(row, col).is_used(num))
-                    return true;
-        return false;
+		if (!rows[row].is_used(num))
+			if (!columns[col].is_used(num))
+				if (!get_box_at(row, col).is_used(num))
+					return true;
+		return false;
 	}
 
 	private bool has_option(int row, int col, int num)
@@ -335,15 +426,15 @@ public class Board
 		c.set_only_possibility(value);
 		if (!rule_out_cells(row, col, value, c))
 			return false;
-		
+
 		if (propagate_list(rows[row]) &&
 			propagate_list(columns[col]) &&
 			propagate_list(get_box_at(row, col)))
 			return true;
-		
+
 		return false;
 	}
-	
+
 	private bool propagate_list(CellList list)
 	{
 		while (true)
@@ -351,7 +442,7 @@ public class Board
 			Cell? c = list.get_constrained_cell();
 			if (c == null)
 				return true;
-			
+
 			if (!propagate(c.row, c.col, c.get_constrained_value()))
 				return false;
 		}
@@ -410,7 +501,26 @@ public class CellList
 
 		return true;
 	}
-	
+
+	public ArrayList<Cell> get_conflicts()
+	{
+		var list = new ArrayList<Cell>();
+		int[] numbers = new int[cells.length];
+		foreach (Cell c in cells)
+			if(c.number != -1)
+			{
+				numbers[c.number]++;
+				if(numbers[c.number]>1)
+					list.add(c);
+			}
+		foreach (Cell c in list)
+			foreach (Cell c2 in cells)
+				if(c.number == c2.number && c != c2)
+					list.add(c2);
+		return list;
+
+	}
+
 	public Cell? get_constrained_cell()
 	{
 		foreach (Cell c in cells)
@@ -418,21 +528,42 @@ public class CellList
 				return c;
 		return null;
 	}
+	public int get_only_possible_cell(Cell cell)
+	{
+		bool[] opts = cell.get_all_options();
+		foreach (Cell c in cells)
+		{
+			if (cell != c)
+			{
+				for (int i = 0; i < opts.length; i++)
+				{
+						if(opts[i] == c.get_possibility(i))
+							opts[i] = false;
+				}
+			}
+		}
+		for(int i = 0; i < opts.length; i++)
+		{
+			if(opts[i])
+				return i;
+		}
+		return -1;
+	}
 
 	public bool is_used(int number)
 	{
-	    foreach (Cell c in cells)
-            if (number == c.number)
-                return true;
-        return false;
+		foreach (Cell c in cells)
+			if (number == c.number)
+				return true;
+		return false;
 	}
 
 	public bool has_option(int number)
 	{
-        foreach (Cell c in cells)
-            if (!c.get_possibility(number))
-                return false;
-        return true;
+		foreach (Cell c in cells)
+			if (!c.get_possibility(number))
+				return false;
+		return true;
 	}
 
 	public string to_string()
@@ -482,7 +613,7 @@ public class Cell
 	public void set_only_possibility(int index)
 	{
 		for (int i = 0; i < options.length; i++)
-			options[i] = i == index;
+			options[i] = i == index || index == -1;
 		number = index;
 	}
 
@@ -497,20 +628,20 @@ public class Cell
 		for (int i = 0; i < options.length; i++)
 			options[i] = cell.options[i];
 	}
-	
+
 	public bool is_constrained()
 	{
 		if (number != -1)
 			return false;
-		
+
 		int opts = 0;
 		for (int i = 0; i < options.length; i++)
 			if (options[i])
 				opts++;
-		
+
 		return opts == 1;
 	}
-	
+
 	public int get_constrained_value()
 	{
 		for (int i = 0; i < options.length; i++)
@@ -523,7 +654,7 @@ public class Cell
 	{
 		if (number != -1)
 			return CELL_SEARCH_ENUM.FINISHED;
- 		for (int i = 0; i < options.length; i++)
+		for (int i = 0; i < options.length; i++)
 			if (options[i])
 				return CELL_SEARCH_ENUM.UNASSIGNED;
 
@@ -531,15 +662,20 @@ public class Cell
 	}
 	public CELL_SEARCH_ENUM get_options(out int opts)
 	{
-        opts = 0;
-        if (number != -1)
+		opts = 0;
+		if (number != -1)
 			return CELL_SEARCH_ENUM.FINISHED;
-        for(int i = 0; i < options.length; i++)
-            if (options[i])
-                opts++;
-        if(opts > 0)
-            return CELL_SEARCH_ENUM.UNASSIGNED;
-        return CELL_SEARCH_ENUM.FAILURE;
+		for(int i = 0; i < options.length; i++)
+			if (options[i])
+				opts++;
+		if(opts > 0)
+			return CELL_SEARCH_ENUM.UNASSIGNED;
+		return CELL_SEARCH_ENUM.FAILURE;
+	}
+
+	public bool[] get_all_options()
+	{
+		return options;
 	}
 
 	public string to_string()
@@ -559,9 +695,9 @@ public class Cell
 
 public enum CELL_SEARCH_ENUM
 {
-    UNASSIGNED,
-    FINISHED,
-    FAILURE
+	UNASSIGNED,
+	FINISHED,
+	FAILURE
 }
 
 }

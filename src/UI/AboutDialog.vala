@@ -15,8 +15,8 @@ class AboutDialog : Gtk.AboutDialog
 	{
 		const string[] authors =
 			{ "Gabríel Arthúr Pétursson <gabriel@system.is>"
-			, "Kristján Árni Gerhardsson <fluffy@fluffy.is>"
 			, "Ingibergur Sindri Stefnisson <ingibergur13@ru.is>"
+			, "Kristján Árni Gerhardsson <fluffy@fluffy.is>"
 			, null
 			};
 
