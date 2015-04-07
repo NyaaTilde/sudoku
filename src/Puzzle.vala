@@ -5,7 +5,7 @@ public class Puzzle : Object
 {
 	public int magnitude { get; construct set; }
 	private bool[] fixed;
-	private int[] board;
+	private Board board;
 
 	public Puzzle ()
 	{
@@ -17,12 +17,11 @@ public class Puzzle : Object
 	{
 		this.magnitude = magnitude;
 		this.fixed = new bool[magnitude * magnitude * magnitude * magnitude];
-		this.board = new int[magnitude * magnitude * magnitude * magnitude];
+		this.board = new Board.with_magnitude (magnitude);
 
-		for (size_t i = 0; i < this.board.length; ++i)
+		for (size_t i = 0; i < this.fixed.length; ++i)
 		{
 			fixed[i] = false;
-			board[i] = -1;
 		}
 	}
 
@@ -31,7 +30,7 @@ public class Puzzle : Object
 		requires (x >= 0 && y < magnitude * magnitude)
 		requires (y >= 0 && y < magnitude * magnitude)
 	{
-		return board[y * magnitude * magnitude + x];
+		return this.board.get_cell_at (x, y).number;
 	}
 
 	public void set_at (int x, int y, int value)
@@ -39,7 +38,7 @@ public class Puzzle : Object
 		requires (y >= 0 && y < magnitude * magnitude)
 		requires (value >= -1 && value < magnitude * magnitude)
 	{
-		board[y * magnitude * magnitude + x] = value;
+		this.board.set_cell_at (x, y, value);
 	}
 
 	public bool is_fixed (int x, int y)
@@ -152,12 +151,12 @@ public class Board
 		return boxes[col + row * magnitude];
 	}
 
-	private Cell get_cell_at(int row, int col)
+	public Cell get_cell_at(int row, int col)
 	{
 		return cells[col + row * sizes];
 	}
 
-	private void set_cell_at(int row, int col, int number)
+	public void set_cell_at(int row, int col, int number)
 	{
 		cells[col + row * sizes].number = number;
 	}
