@@ -23,7 +23,7 @@ int main (string[] args)
 	Board board = new Board./*with_magnitude(3);//*/with_grid(grid);
 	board = board.solve();
 
-	print("Forward checing:\n");
+	print("Forward checking with most constrained heuristic:\n");
 	print("Solving time: " + (timer.elapsed() * 1000).to_string() + "ms\n");
 	print("States expanded: " + Board.states_expanded.to_string() + "\n");
 	print(board.to_string() + "\n");
