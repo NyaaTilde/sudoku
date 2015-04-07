@@ -243,36 +243,36 @@ public class Board
 
 	}
 
-    private CELL_SEARCH_ENUM most_constrained_option(out int row, out int col)
+	private CELL_SEARCH_ENUM most_constrained_option(out int row, out int col)
 	{
-        row = -1;
-        col = -1;
-        int minvalue = sizes+1;
-        for (int r = 0; r < sizes; r++)
-            for (int c = 0; c < sizes; c++)
-            {
-                int tmp = 0;
-                switch (get_cell_at(r, c).get_options(out tmp))
-                {
-                    case CELL_SEARCH_ENUM.UNASSIGNED:
-                        if(tmp < minvalue)
-                        {
-                            minvalue = tmp;
-                            row = r;
-                            col = c;
-                            /*if(minvalue == 2)
-                                return CELL_SEARCH_ENUM.UNASSIGNED;*/
-                        }
-                        break;
-                    case CELL_SEARCH_ENUM.FAILURE:
-                        return CELL_SEARCH_ENUM.FAILURE;
-                }
-            }
-        if (row != -1 && col != -1)
-            return CELL_SEARCH_ENUM.UNASSIGNED;
-        row = 0;
-        col = 0;
-        return CELL_SEARCH_ENUM.FINISHED;
+		row = -1;
+		col = -1;
+		int minvalue = sizes+1;
+		for (int r = 0; r < sizes; r++)
+			for (int c = 0; c < sizes; c++)
+			{
+				int tmp = 0;
+				switch (get_cell_at(r, c).get_options(out tmp))
+				{
+					case CELL_SEARCH_ENUM.UNASSIGNED:
+						if(tmp < minvalue)
+						{
+							minvalue = tmp;
+							row = r;
+							col = c;
+							/*if(minvalue == 2)
+								return CELL_SEARCH_ENUM.UNASSIGNED;*/
+						}
+						break;
+					case CELL_SEARCH_ENUM.FAILURE:
+						return CELL_SEARCH_ENUM.FAILURE;
+				}
+			}
+		if (row != -1 && col != -1)
+			return CELL_SEARCH_ENUM.UNASSIGNED;
+		row = 0;
+		col = 0;
+		return CELL_SEARCH_ENUM.FINISHED;
 	}
 
 	private CELL_SEARCH_ENUM find_option(out int row, out int col)
@@ -292,11 +292,11 @@ public class Board
 					break;
 				case CELL_SEARCH_ENUM.FAILURE:
 					return CELL_SEARCH_ENUM.FAILURE;
-                }
+				}
 
 		if (row != -1 && col != -1)
 			return CELL_SEARCH_ENUM.UNASSIGNED;
-		
+
 		row = 0;
 		col = 0;
 		return CELL_SEARCH_ENUM.FINISHED;
@@ -310,16 +310,16 @@ public class Board
 					return true;
 		row = 0;
 		col = 0;
-        return false;
+		return false;
 	}
 
 	private bool is_safe(int row, int col, int num)
 	{
-	    if (!rows[row].is_used(num))
-            if (!columns[col].is_used(num))
-                if (!get_box_at(row, col).is_used(num))
-                    return true;
-        return false;
+		if (!rows[row].is_used(num))
+			if (!columns[col].is_used(num))
+				if (!get_box_at(row, col).is_used(num))
+					return true;
+		return false;
 	}
 
 	private bool has_option(int row, int col, int num)
@@ -333,15 +333,15 @@ public class Board
 		c.set_only_possibility(value);
 		if (!rule_out_cells(row, col, value, c))
 			return false;
-		
+
 		if (propagate_list(rows[row]) &&
 			propagate_list(columns[col]) &&
 			propagate_list(get_box_at(row, col)))
 			return true;
-		
+
 		return false;
 	}
-	
+
 	private bool propagate_list(CellList list)
 	{
 		while (true)
@@ -349,7 +349,7 @@ public class Board
 			Cell? c = list.get_constrained_cell();
 			if (c == null)
 				return true;
-			
+
 			if (!propagate(c.row, c.col, c.get_constrained_value()))
 				return false;
 		}
@@ -381,7 +381,7 @@ public class Board
 	public bool rule_out_cells(int row, int col, int num, Cell cell)
 	{
 		if (rows[row].rule_out(cell, num) &&
-	    		columns[col].rule_out(cell, num) &&
+				columns[col].rule_out(cell, num) &&
 			get_box_at(row, col).rule_out(cell, num))
 			return true;
 		return false;
@@ -408,7 +408,7 @@ public class CellList
 
 		return true;
 	}
-	
+
 	public Cell? get_constrained_cell()
 	{
 		foreach (Cell c in cells)
@@ -419,18 +419,18 @@ public class CellList
 
 	public bool is_used(int number)
 	{
-	    foreach (Cell c in cells)
-            if (number == c.number)
-                return true;
-        return false;
+		foreach (Cell c in cells)
+			if (number == c.number)
+				return true;
+		return false;
 	}
 
 	public bool has_option(int number)
 	{
-        foreach (Cell c in cells)
-            if (!c.get_possibility(number))
-                return false;
-        return true;
+		foreach (Cell c in cells)
+			if (!c.get_possibility(number))
+				return false;
+		return true;
 	}
 
 	public string to_string()
@@ -495,20 +495,20 @@ public class Cell
 		for (int i = 0; i < options.length; i++)
 			options[i] = cell.options[i];
 	}
-	
+
 	public bool is_constrained()
 	{
 		if (number != -1)
 			return false;
-		
+
 		int opts = 0;
 		for (int i = 0; i < options.length; i++)
 			if (options[i])
 				opts++;
-		
+
 		return opts == 1;
 	}
-	
+
 	public int get_constrained_value()
 	{
 		for (int i = 0; i < options.length; i++)
@@ -529,15 +529,15 @@ public class Cell
 	}
 	public CELL_SEARCH_ENUM get_options(out int opts)
 	{
-        opts = 0;
-        if (number != -1)
+		opts = 0;
+		if (number != -1)
 			return CELL_SEARCH_ENUM.FINISHED;
-        for(int i = 0; i < options.length; i++)
-            if (options[i])
-                opts++;
-        if(opts > 0)
-            return CELL_SEARCH_ENUM.UNASSIGNED;
-        return CELL_SEARCH_ENUM.FAILURE;
+		for(int i = 0; i < options.length; i++)
+			if (options[i])
+				opts++;
+		if(opts > 0)
+			return CELL_SEARCH_ENUM.UNASSIGNED;
+		return CELL_SEARCH_ENUM.FAILURE;
 	}
 
 
@@ -559,9 +559,9 @@ public class Cell
 
 public enum CELL_SEARCH_ENUM
 {
-    UNASSIGNED,
-    FINISHED,
-    FAILURE
+	UNASSIGNED,
+	FINISHED,
+	FAILURE
 }
 
 }
