@@ -9,7 +9,7 @@
 
 \title{Final Project: The Report}
 \author{Ingibergur Sindri Stefnisson \and Gabríel Arthúr Pétursson \and Kristján Árni Gerhardsson
-	\footnote{The order of the names listed were determined by Procrastination.}}
+	\footnote{The order of the names listed were determined by their amount of procrastination.}}
 
 \begin{document}
 
@@ -29,39 +29,154 @@
 \section*{Introduction}
 
 The topic of our project was to make a Sudoku solver and generator. What interested
-us in doing this is that all of us like Sudoku and we wanted to see how we would
-go about making our own Sudoku program with a solver and a generator.\\
+us in doing this is that all of us like Sudoku, and we wanted to see how we would
+go about making our own Sudoku program with a solver and a generator.
 
-First a little backstory on Sudoku.\\
+First a little backstory on Sudoku.
+
+A standard Sudoku puzzle consist of a nine by nine grid, split into nine three
+by three boxes. Each square has to be filled with a number between one and nine.
+Some of these squares have already been filled into to ensure that there exists
+only one unique solution.
+
+There are three rules: each row, column, and box must contain all the numbers
+one through nine. Though these rules seem simple, there exists
+6,670,903,752,021,072,936,960 valid Sudoku puzzles.
 
 Sudoku was popularized in 1986 in Japan but it didn't become internationally known
-until 2005. Since then it has been puzzling people all over the world. 
+until 2005. Since then it has been puzzling people all over the world.
 There are quite a lot of variations of the Sudoku puzzle in existence. But our 
-solver/generator was made for the normal type of Sudoku.\\
+solver and generator was made for the normal type of Sudoku.
 
 What we originally wanted to achieve was just a simple solver for 9x9 Sudoku puzzles.
 What we found out though, that 9x9 puzzles are very easy to bruteforce by using
-a backtracking search algorithm. So we decided to go deeper and see if we could
+a backtracking search algorithm. Thus, we decided to go deeper and see if we could
 make a solver that could solve 16x16 puzzles quickly, since the backtracking algorithm
-is quite useless for those without modifications.\\
+is quite useless for those without modifications.
 
-So with the simple backtracking search we started by changing it to have forward 
-checking and later on constraint propagation.
+%%So with the simple backtracking search we started by changing it to have forward 
+%%checking and later on constraint propagation.
 
-\section*{Description}
+\section*{Description}%% a  description of what you did, which methods you used and why you chose these methods
 
-\ldots
+So first off, we are using the programming language Vala and utilizing the GTK+ toolkit for our graphical interface. %%It is simply the best dudududu
+%%better than all the rest dududu%%talk about vala to make this longer
+
+What we started off by doing is modeling Sudoku as a Constraint Satisfaction Problem,
+where each cell is a variable, and the domains are the numbers possible to put in each
+cell.
+
+What is needed for a CSP is first and foremost a Backtracking search. Thus, we started
+by implementing a simple version of a Sudoku Backtracking search, which worked by
+itself quite well for 9x9 Sudoku puzzles. Solving even what is called the hardest
+Sudoku puzzle ever in under 60~milliseconds. So from there we started thinking about bigger Sudoku puzzles.
+
+We wanted to make something that could solve 16x16 puzzles.
+Then we started implementing forward checking. And after forward cheking we 
+implemented Constraint Propagation and made a fair heuristics function. With those changes we should be able to solve all valid 16x16 puzzles.
+
+\subsection*{Code structure}
+
+So the way our code is structured is we have a class \verb+Board+ that has arrays of \verb+CellList+s that store the rows, columns and boxes, and an array of all \verb+Cell+s in the \verb+Board+.
+
+In there we have a function to solve the Sudoku.
+
+In the \verb+CellList+ we have an array of cells for which cells are in that list's row, column, or box.
+
+The \verb+Cell+ class has a bitmask used for forward checking,
+what number belongs in the cell, along with integers represeting which row and
+column the cell belongs to.
+
+%% Add more here perhaps
+
+\subsection*{Backtracking Search}
+
+The Backtracking Search starts by checking if there is any unassigned cell. If it 
+finds no unassigned cell it returns \verb+true+.
+
+If it finds a unassigned cell it checks for each number in Sudoku if it is safe 
+to put that one there. If it is safe to put it there it sets the cell's value to that 
+number and recursively goes into the function again.
+
+\subsection*{Forward Checking}
+
+The Forward Checking algorithm adds on to the backtracking search by making each 
+cell have a bitmask representing which values are possible for that cell. If 
+the value in a particular location in the bitmask is zero, the cell cannot
+contain that number. We maintain those bitmasks for each cell.
+
+\subsection*{Constraint Propagation}
+
+What the Constraint Propagation does is checks for every cell if there is a cell
+that has only one possible solution.
+
+We also check if the cell is the only one that can carry a particular solution,
+that is, that solution would obviously not fit into any other cell within the
+same row, column, or box.
+
+\subsection*{Heuristic}
+
+We are using Most constrained Variable Heuristic to choose which variable should
+be assigned a value next. It minimizes the branching factor by quite alot.
+What it does is pick the variable that has the fewest domains and uses it next.
+
+After Most constrained Variable we try to find the least constrained value. As in 
+the value in that variable that is on the fewest variables, since it's the one most
+likely to have the solution.
 
 \section*{Results}%presentation, interpretation and discussion of the results.
+%experiments you did and what the data means and how it compares %to other experiments or what you expected)
 
-\ldots
+Our first experiments was with just normal backtracking; we wanted to see how fast
+the backtracking was at tackling 9x9 Sudoku puzzles. It came as a surprise that
+it solved all 9x9 Sudoku puzzles in around 50~milliseconds.
+
+When we tried to solve 16*16 puzzles though it could not solve it over a few days
+running.
+
+\subsection*{Experiments}
+
+We did a few experiments with different difficulty of puzzles and different sizes.
+
+With an easy 9x9 Sudoku the backtracking algorithm expanded around 4000 states.
+The forward checking expanded around 2000 states. The constraint propagation 
+algorithm allowed us to do most easy puzzles without expanding any states or at most
+somewhere around 2.
+
+With the medium 9x9 we tried the backtracking algorithm expanded
+from 10-15 thousand states and the forward checking one around 3-5 thousand states
+The constraint propagation algorithm with our heuristic was expanding somewhere around 120-150 states.
+
+With the hard 9x9 Sudoku the backtracking algorithm expanded around 100 thousand
+states. The forward checking expanded around 15000. The constraint propagation
+algorithm expanded around 50-60 states.
+
+The so called World's hardest sudoku by the Telegraph in the UK was the hardest 9x9
+for our constraint propagation algorithm but it still managed to do it by expanding
+only 1849 states. The forward checking algorithm did it in 22067 and the Backtracking one
+did it in 49558 states.
+
+But now comes the fun part the 16x16 puzzles. The backtracking search and the 
+standard forward checking was completely unable to solve any of them that we found.
+
+The easy 16x16 was solved in under a millisecond and with 0 states expanded.
+The propagation did it all.
+
+The hard 16x16 we used could be solved in around 380 thousand states.
+
+The hardest 16x16 puzzle we could find, we were unable to solve in over 40 million 
+states tried. :-(
 
 \section*{Conclusion}
 
-\ldots
+Our conclusion to this project is that while Sudoku is a hard Constraint
+Satisfaction problem it is not at all impervious to search problems. All 9x9
+Sudoku puzzles we tried were handled quite easily, most in under 200 states
+expanded. Our algorithm managed to solve nearly all 16x16 puzzles except for
+the incredibly hard ones. And we can solve the easier 25x25 puzzles quite
+quickly.
 
-\section*{Future Suggestions}
-
-\ldots
+We made a sweet little GUI to use with it and a simple generator to make
+puzzles.
 
 \end{document}

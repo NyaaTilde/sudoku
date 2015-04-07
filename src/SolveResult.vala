@@ -3,13 +3,13 @@ namespace Sudoku
 
 public class SolveResult
 {
-	public SolveResult()
+	public SolveResult (int num)
 	{
 		first_result = null;
 		results = 0;
 		finished = false;
 		states_expanded = 0;
-		find_count = 1;
+		find_count = num;
 	}
 	
 	public Board? first_result { get; set; }

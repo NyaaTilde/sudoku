@@ -27,7 +27,7 @@ public class Board
 		this.with_magnitude(3);
 	}
 
-	public Board.with_grid(int[,] grid, bool propagation)
+	public Board.with_grid(int[,] grid)
 	{
 		int magnitude = 0;
 		while ((++magnitude * magnitude) < grid.length[0]);
@@ -43,15 +43,8 @@ public class Board
 
 				if (number != empty)
 				{
-					if (propagation)
-					{
-						propagate(row, col, number - 1 - empty);
-					}
-					else
-					{
-						cell.set_only_possibility(number - 1 - empty);
-						rule_out_cells(row, col, number - 1 - empty, cell);
-					}
+					cell.set_only_possibility(number - 1 - empty);
+					rule_out_cells(row, col, number - 1 - empty, cell);
 				}
 			}
 	}
@@ -106,16 +99,11 @@ public class Board
 				for (int col = 0; col < b.sizes; col++)
 					numbers[col, row] = b.get_cell_at(row, col).number;
 			
-			Board solve = new Board.with_grid(numbers, true);
-			SolveResult r = new SolveResult();
-			r.find_count = 2;
+			Board solve = new Board.with_grid(numbers);
+			SolveResult r = new SolveResult(2);
  			r = solvedCPS(solve, r);
 			if (r.results != 1)
-			{
-				print("Count: " + r.results.to_string() + "\n");
-				print(r.first_result.to_string() + "\n--------------------------------\n");
 				continue;
-			}
 			
 			return b;
 		}
@@ -158,16 +146,29 @@ public class Board
 		for (int i = 0; i < cells.length; i++)
 			cells[i].set_only_possibility(numbers[i]);
 		
-		SolveResult r = new SolveResult();
+		SolveResult r = new SolveResult(1);
 		r = solvedCPS(board, r);
 		
 		return r.first_result;
 	}
 
-	public SolveResult? solveCPS()
+	public SolveResult? solveCPS (int num)
 	{
-		SolveResult result = new SolveResult();
-		return solvedCPS(this, result);
+		Board board = this.copy ();
+
+		for (int i = 0; i < this.cells.length; ++i)
+		{
+			unowned Cell c = this.cells[i];
+
+			if (c.number != -1)
+			{
+				board.propagate (c.row, c.col, c.number);
+			}
+		}
+
+		states_expanded = 0;
+		SolveResult result = new SolveResult (num);
+		return solvedCPS(board, result);
 	}
 
 	public Board? solveFCS()
