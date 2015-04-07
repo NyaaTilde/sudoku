@@ -191,7 +191,14 @@ class Puzzle : Gtk.DrawingArea
 				{
 					string str = this.get_character (num);
 
-					ctx.set_source_rgb (0.0, 0.0, 0.0);
+					if (this.puzzle.is_conflicted (i, j))
+					{
+						ctx.set_source_rgb (1.0, 0.0, 0.0);
+					}
+					else
+					{
+						ctx.set_source_rgb (0.0, 0.0, 0.0);
+					}
 
 					if (this.puzzle.is_fixed (i, j))
 					{
