@@ -21,18 +21,27 @@ int main (string[] args)
 	};
 
 	Board board = new Board./*with_magnitude(3);//*/with_grid(grid);
-	board = board.solve();
+	/*board = board.solveFCS();
 
 	print("Forward checing:\n");
 	print("Solving time: " + (timer.elapsed() * 1000).to_string() + "ms\n");
 	print("States expanded: " + Board.states_expanded.to_string() + "\n");
 	print(board.to_string() + "\n");
 
-	timer.start();
+	/*timer.start();
 	board = new Board.with_grid(grid);
 	board = board.solveBTS();
 
 	print("Back tracking:\n");
+	print("Solving time: " + (timer.elapsed() * 1000).to_string() + "ms\n");
+	print("States expanded: " + Board.states_expanded.to_string() + "\n");
+	print(board.to_string() + "\n");*/
+
+	timer.start();
+	board = new Board.with_grid(grid);
+	board = board.solveCPS();
+
+	print("Constraint propagation:\n");
 	print("Solving time: " + (timer.elapsed() * 1000).to_string() + "ms\n");
 	print("States expanded: " + Board.states_expanded.to_string() + "\n");
 	print(board.to_string() + "\n");

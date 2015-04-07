@@ -75,7 +75,7 @@ public class Board
 				{
 					cell.set_only_possibility(number - 1 - empty);
 					rule_out_cells(row, col, number - 1 - empty, cell);
-                		}
+				}
 			}
 	}
 
@@ -89,7 +89,7 @@ public class Board
 		boxes = new CellList[sizes];
 
 		for (int i = 0; i < cells.length; i++)
-			cells[i] = new Cell(sizes, i % sizes, i / sizes);
+			cells[i] = new Cell(sizes, i / sizes, i % sizes);
 
 		Cell[] row_list = new Cell[sizes];
 		Cell[] column_list = new Cell[sizes];
@@ -114,10 +114,16 @@ public class Board
 		}
 	}
 
-	public Board? solve()
+	public Board? solveCPS()
 	{
 		states_expanded = 0;
-		return solved(this);
+		return solvedCPS(this);
+	}
+
+	public Board? solveFCS()
+	{
+		states_expanded = 0;
+		return solvedFCS(this);
 	}
 
 	public Board? solveBTS()
@@ -146,76 +152,106 @@ public class Board
 		cells[col + row * sizes].number = number;
 	}
 
-	private static Board? solved(Board board)
+	private static Board? solvedCPS(Board board)
 	{
-	    int row, col;
-	    switch(board.find_option (out row, out col))
-	    {
-            case CELL_SEARCH_ENUM.FINISHED:
-                return board;
-            case CELL_SEARCH_ENUM.FAILURE:
-                return null;
-	    }
-        for (int i = 0; i < board.sizes; i++)
-        {
-            if (board.has_option(row, col, i))
-            {
-		states_expanded++;
-                Board b = board.copy();
-                Cell c = b.get_cell_at(row, col);
-		c.set_only_possibility(i);
-                if (!b.rule_out_cells(row, col, i, c))
-			continue;
+		int row, col;
+		switch (board.find_option(out row, out col))
+		{
+		case CELL_SEARCH_ENUM.FINISHED:
+			return board;
+		case CELL_SEARCH_ENUM.FAILURE:
+			return null;
+		}
 
-		//print(b.to_string() + "\n-----------------------------\n");
-                if ((b = solved(b)) != null)
-                    return b;
-            }
-        }
-        return null;
+		for (int i = 0; i < board.sizes; i++)
+		{
+			if (board.has_option(row, col, i))
+			{
+				states_expanded++;
+				Board b = board.copy();
+				print("Start propagate.\n");
+				if (!b.propagate(row, col, i))
+				{
+					print("Continue!\n");
+					continue;
+				}
+				print("Finish propagate.\n");
+				if ((b = solvedCPS(b)) != null)
+					return b;
+			}
+		}
+
+		return null;
+	}
+
+	private static Board? solvedFCS(Board board)
+	{
+		int row, col;
+		switch(board.find_option (out row, out col))
+		{
+			case CELL_SEARCH_ENUM.FINISHED:
+				return board;
+			case CELL_SEARCH_ENUM.FAILURE:
+				return null;
+		}
+		for (int i = 0; i < board.sizes; i++)
+		{
+			if (board.has_option(row, col, i))
+			{
+				states_expanded++;
+				Board b = board.copy();
+				Cell c = b.get_cell_at(row, col);
+				c.set_only_possibility(i);
+				if (!b.rule_out_cells(row, col, i, c))
+					continue;
+				if ((b = solvedFCS(b)) != null)
+					return b;
+			}
+		}
+		return null;
 	}
 
 	public bool solvedBTS()
 	{
-        int row, col;
-        if(!find_unassigned(out row, out col))
-            return true;
-        for(int i = 0; i < sizes; i++)
-        {
-            if(is_safe(row,col,i))
-            {
-                states_expanded++;
-                set_cell_at(row, col, i);
-                if(solvedBTS())
-                    return true;
-                set_cell_at(row, col, -1);
-            }
-        }
-        return false;
+		int row, col;
+		if(!find_unassigned(out row, out col))
+			return true;
+		for(int i = 0; i < sizes; i++)
+		{
+			if(is_safe(row,col,i))
+			{
+				states_expanded++;
+				set_cell_at(row, col, i);
+				if(solvedBTS())
+					return true;
+				set_cell_at(row, col, -1);
+			}
+		}
+		return false;
 
 	}
 	private CELL_SEARCH_ENUM find_option(out int row, out int col)
 	{
 		row = -1;
 		col = -1;
-	    for (int r = 0; r < sizes; r++)
-            for (int c = 0; c < sizes; c++)
-                switch (get_cell_at(r, c).has_multiple_options())
-                {
-                case CELL_SEARCH_ENUM.UNASSIGNED:
-			if (row == -1 && col == -1)
-			{
-				row = r;
-				col = c;
-			}
-			break;
-                case CELL_SEARCH_ENUM.FAILURE:
-                    return CELL_SEARCH_ENUM.FAILURE;
+		for (int r = 0; r < sizes; r++)
+			for (int c = 0; c < sizes; c++)
+				switch (get_cell_at(r, c).has_multiple_options())
+				{
+				case CELL_SEARCH_ENUM.UNASSIGNED:
+					if (row == -1 && col == -1)
+					{
+						row = r;
+						col = c;
+					}
+					break;
+				case CELL_SEARCH_ENUM.FAILURE:
+					return CELL_SEARCH_ENUM.FAILURE;
                 }
 
 		if (row != -1 && col != -1)
 			return CELL_SEARCH_ENUM.UNASSIGNED;
-
+		
 		row = 0;
 		col = 0;
 		return CELL_SEARCH_ENUM.FINISHED;
@@ -223,12 +259,12 @@ public class Board
 
 	private bool find_unassigned(out int row, out int col)
 	{
-	    for(row = 0; row < sizes; row++)
-            for(col= 0; col < sizes; col++)
-                if(get_cell_at(row, col).number == -1)
-                    return true;
-        row = 0;
-        col = 0;
+		for(row = 0; row < sizes; row++)
+			for(col= 0; col < sizes; col++)
+				if(get_cell_at(row, col).number == -1)
+					return true;
+		row = 0;
+		col = 0;
         return false;
 	}
 
@@ -243,12 +279,35 @@ public class Board
 
 	private bool has_option(int row, int col, int num)
 	{
-	    /*if (rows[row].has_option(num) &&
-            columns[col].has_option(num) &&
-            get_box_at(row, col).has_option(num))
-            return true;
-	        return false;*/
 		return get_cell_at(row, col).get_possibility(num);
+	}
+
+	private bool propagate(int row, int col, int value)
+	{
+		Cell c = get_cell_at(row, col);
+		c.set_only_possibility(value);
+		if (!rule_out_cells(row, col, value, c))
+			return false;
+		
+		if (propagate_list(rows[row]) &&
+			propagate_list(columns[col]) &&
+			propagate_list(get_box_at(row, col)))
+			return true;
+		
+		return false;
+	}
+	
+	private bool propagate_list(CellList list)
+	{
+		while (true)
+		{
+			Cell? c = list.get_constrained_cell();
+			if (c == null)
+				return true;
+			
+			if (!propagate(c.row, c.col, c.get_constrained_value()))
+				return false;
+		}
 	}
 
 	public string to_string()
@@ -303,6 +362,14 @@ public class CellList
 		}
 
 		return true;
+	}
+	
+	public Cell? get_constrained_cell()
+	{
+		foreach (Cell c in cells)
+			if (c.is_constrained())
+				return c;
+		return null;
 	}
 
 	public bool is_used(int number)
@@ -359,31 +426,10 @@ public class Cell
 	public bool set_possibility(int index, bool value)
 	{
 		options[index] = value;
-
-		/*int opts = 0;
-		int n = -1;
-
 		for (int i = 0; i < options.length; i++)
-		{
 			if (options[i])
-			{
-				opts++;
-				n = i;
-			}
-
-			if (opts >= 2)
-			{
-				number = -1;
 				return true;
-			}
-		}
-
-		if (opts == 0)
-			return false;
-		else if (opts == 1)
-			number = n;*/
-
-		return true;
+		return false;
 	}
 
 	public void set_only_possibility(int index)
@@ -403,6 +449,27 @@ public class Cell
 			options = new bool[cell.options.length];
 		for (int i = 0; i < options.length; i++)
 			options[i] = cell.options[i];
+	}
+	
+	public bool is_constrained()
+	{
+		if (number != -1)
+			return false;
+		
+		int opts = 0;
+		for (int i = 0; i < options.length; i++)
+			if (options[i])
+				opts++;
+		
+		return opts == 1;
+	}
+	
+	public int get_constrained_value()
+	{
+		for (int i = 0; i < options.length; i++)
+			if (options[i])
+				return i;
+		return -1;
 	}
 
 	public CELL_SEARCH_ENUM has_multiple_options()
