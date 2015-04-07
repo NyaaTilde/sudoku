@@ -57,7 +57,7 @@ public class Board
 		this.with_magnitude(3);
 	}
 
-	public Board.with_grid(int[,] grid)
+	public Board.with_grid(int[,] grid, bool propagation)
 	{
 		int magnitude = 0;
 		while ((++magnitude * magnitude) < grid.length[0]);
@@ -73,8 +73,15 @@ public class Board
 
 				if (number != empty)
 				{
-					cell.set_only_possibility(number - 1 - empty);
-					rule_out_cells(row, col, number - 1 - empty, cell);
+					if (propagation)
+					{
+						propagate(row, col, number - 1 - empty);
+					}
+					else
+					{
+						cell.set_only_possibility(number - 1 - empty);
+						rule_out_cells(row, col, number - 1 - empty, cell);
+					}
 				}
 			}
 	}
@@ -154,35 +161,39 @@ public class Board
 
 	private static Board? solvedCPS(Board board)
 	{
-		int row, col;
-		switch (board.most_constrained_option(out row, out col))
+		while (true)
 		{
-		case CELL_SEARCH_ENUM.FINISHED:
-			return board;
-		case CELL_SEARCH_ENUM.FAILURE:
-			return null;
-		}
-
-		for (int i = 0; i < board.sizes; i++)
-		{
-			if (board.has_option(row, col, i))
+			int row, col, val;
+			switch (board.find_option(out row, out col, out val))
 			{
-				states_expanded++;
-				Board b = board.copy();
-				if (!b.propagate(row, col, i))
-					continue;
-				if ((b = solvedCPS(b)) != null)
-					return b;
+			case CELL_SEARCH_ENUM.FINISHED:
+				return board;
+			case CELL_SEARCH_ENUM.FAILURE:
+				return null;
 			}
-		}
 
-		return null;
+			states_expanded++;
+			Board b = board.copy();
+			if (states_expanded % 100 == 0)
+			{
+				print("States: " + states_expanded.to_string() + "\n");
+				print(b.to_string() + "\n------------------------------------\n");
+			}
+			
+			if (!b.propagate(row, col, val) || (b = solvedCPS(b)) == null)
+			{
+				board.get_cell_at(row, col).set_possibility(val, false);
+				continue;
+			}
+			
+			return b;
+		}
 	}
 
 	private static Board? solvedFCS(Board board)
 	{
-		int row, col;
-		switch(board.find_option (out row, out col))
+		int row, col, val;
+		switch(board.find_option(out row, out col, out val))
 		{
 			case CELL_SEARCH_ENUM.FINISHED:
 				return board;
@@ -226,62 +237,70 @@ public class Board
 
 	}
 
-    private CELL_SEARCH_ENUM most_constrained_option(out int row, out int col)
-	{
-        row = -1;
-        col = -1;
-        int minvalue = sizes+1;
-        for (int r = 0; r < sizes; r++)
-            for (int c = 0; c < sizes; c++)
-            {
-                int tmp = 0;
-                switch (get_cell_at(r, c).get_options(out tmp))
-                {
-                    case CELL_SEARCH_ENUM.UNASSIGNED:
-                        if(tmp < minvalue)
-                        {
-                            minvalue = tmp;
-                            row = r;
-                            col = c;
-                            /*if(minvalue == 2)
-                                return CELL_SEARCH_ENUM.UNASSIGNED;*/
-                        }
-                        break;
-                    case CELL_SEARCH_ENUM.FAILURE:
-                        return CELL_SEARCH_ENUM.FAILURE;
-                }
-            }
-        if (row != -1 && col != -1)
-            return CELL_SEARCH_ENUM.UNASSIGNED;
-        row = 0;
-        col = 0;
-        return CELL_SEARCH_ENUM.FINISHED;
-	}
-
-	private CELL_SEARCH_ENUM find_option(out int row, out int col)
+	private CELL_SEARCH_ENUM most_constrained_option(out int row, out int col, out int val)
 	{
 		row = -1;
 		col = -1;
+		val = -1;
+		int minvalue = sizes+1;
 		for (int r = 0; r < sizes; r++)
 			for (int c = 0; c < sizes; c++)
-				switch (get_cell_at(r, c).has_multiple_options())
+			{
+				int tmp = 0;
+				switch (get_cell_at(r, c).get_options(out tmp))
+				{
+					case CELL_SEARCH_ENUM.UNASSIGNED:
+						if(tmp < minvalue)
+						{
+							minvalue = tmp;
+							row = r;
+							col = c;
+							/*if(minvalue == 2)
+								return CELL_SEARCH_ENUM.UNASSIGNED;*/
+						}
+						break;
+					case CELL_SEARCH_ENUM.FAILURE:
+						return CELL_SEARCH_ENUM.FAILURE;
+				}
+			}
+		if (row != -1 && col != -1)
+			return CELL_SEARCH_ENUM.UNASSIGNED;
+		row = 0;
+		col = 0;
+		return CELL_SEARCH_ENUM.FINISHED;
+	}
+
+	private CELL_SEARCH_ENUM find_option(out int row, out int col, out int val)
+	{
+		row = -1;
+		col = -1;
+		val = -1;
+		for (int r = 0; r < sizes; r++)
+			for (int c = 0; c < sizes; c++)
+			{
+				Cell cell = get_cell_at(r, c);
+				
+				switch (cell.has_multiple_options())
 				{
 				case CELL_SEARCH_ENUM.UNASSIGNED:
-					if (row == -1 && col == -1)
+					if (row == -1)
 					{
 						row = r;
 						col = c;
+						val = cell.get_constrained_value();
 					}
 					break;
 				case CELL_SEARCH_ENUM.FAILURE:
 					return CELL_SEARCH_ENUM.FAILURE;
                 }
+			}
 
-		if (row != -1 && col != -1)
+		if (row != -1)
 			return CELL_SEARCH_ENUM.UNASSIGNED;
 		
 		row = 0;
 		col = 0;
+		val = 0;
 		return CELL_SEARCH_ENUM.FINISHED;
 	}
 
@@ -364,7 +383,7 @@ public class Board
 	public bool rule_out_cells(int row, int col, int num, Cell cell)
 	{
 		if (rows[row].rule_out(cell, num) &&
-	    		columns[col].rule_out(cell, num) &&
+			columns[col].rule_out(cell, num) &&
 			get_box_at(row, col).rule_out(cell, num))
 			return true;
 		return false;
@@ -522,8 +541,6 @@ public class Cell
             return CELL_SEARCH_ENUM.UNASSIGNED;
         return CELL_SEARCH_ENUM.FAILURE;
 	}
-
-
 
 	public string to_string()
 	{

@@ -27,8 +27,8 @@ int main (string[] args)
 		{-1,13,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}
 	};
 
-	Board board = new Board./*with_magnitude(3);//*/with_grid(grid);
-	/*board = board.solveFCS();
+	/*Board board = new Board./*with_magnitude(3);//* /with_grid(grid);
+	board = board.solveFCS();
 
 	print("Forward checking with most constrained heuristic:\n");
 	print("Solving time: " + (timer.elapsed() * 1000).to_string() + "ms\n");
@@ -45,8 +45,8 @@ int main (string[] args)
 	print(board.to_string() + "\n");*/
 
 	timer.start();
-	board = new Board./*with_magnitude(5);//*/with_grid(grid);
-	board = board.solveBTS();
+	Board board = new Board./*with_magnitude(5);//*/with_grid(grid, true);
+	board = board.solveCPS();
 
 	print("Constraint propagation:\n");
 	print("Solving time: " + (timer.elapsed() * 1000).to_string() + "ms\n");
