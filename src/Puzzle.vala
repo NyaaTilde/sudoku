@@ -95,14 +95,14 @@ public class Puzzle : Object
 
 	private void check_conflicts ()
 	{
-		ArrayList<Cell> cells = this.board.check_conflicts ();
+		ArrayList<unowned Cell> cells = this.board.check_conflicts ();
 
 		for (size_t i = 0; i < this.conflicts.length; ++i)
 		{
 			conflicts[i] = false;
 		}
 
-		foreach (var cell in cells)
+		foreach (unowned Cell cell in cells)
 		{
 			set_conflict (cell.col, cell.row);
 		}
