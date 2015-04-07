@@ -1,0 +1,35 @@
+Greetings!
+==========
+
+The Sudoku program requires a Vala compiler and a C compiler.
+
+Mininmum Version Required
+-------------------------
+
+Earlier versions may or may not work, they have not been tested nor are they
+supported.
+
+	* gcc-4.8
+	* gtk+-3.14
+	* libgee-0.8
+	* pango-1.36.8
+	* valac-0.26.1
+
+Compiling
+=========
+
+Go to the 'src' directory and run 'make'. The Makefile provided executes the
+needed commands for compilation.
+
+Compilation errors are likely expalined my missing dependencies or that their
+versions are insufficient.
+
+	$ cd src
+	$ make
+
+Running
+=======
+
+Simply execute the 'sudoku' executable.
+
+	$ ./sudoku
