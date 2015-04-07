@@ -33,7 +33,7 @@ public class Board
 		while ((++magnitude * magnitude) < grid.length[0]);
 		this.with_magnitude(magnitude);
 
-		int empty = magnitude <= 3 ? 0 : -1;
+		int empty = -1;//magnitude <= 3 ? 0 : -1;
 
 		for (int row = 0; row < sizes; row++)
 			for (int col = 0; col < sizes; col++)
@@ -90,10 +90,82 @@ public class Board
 			boxes[row] = new CellList(box_list);
 		}
 	}
+	
+	public static Board create_unfinished(int magnitude, int seed, float difficulty)
+	{
+		Rand rnd = new Rand.with_seed(seed);
+		
+		while (true)
+		{
+			Board board = create_random(magnitude, rnd);
+			Board b = delete_random(board, rnd, difficulty);
+		
+			int[,] numbers = new int[b.sizes, b.sizes];
+			
+			for (int row = 0; row < b.sizes; row++)
+				for (int col = 0; col < b.sizes; col++)
+					numbers[col, row] = b.get_cell_at(row, col).number;
+			
+			Board solve = new Board.with_grid(numbers, true);
+			SolveResult r = new SolveResult();
+			r.find_count = 2;
+ 			r = solvedCPS(solve, r);
+			if (r.results != 1)
+			{
+				print("Count: " + r.results.to_string() + "\n");
+				print(r.first_result.to_string() + "\n--------------------------------\n");
+				continue;
+			}
+			
+			return b;
+		}
+	}
+	
+	private static Board delete_random(Board board, Rand rnd, float amount)
+	{
+		Board b = board.copy();
+		
+		for (int i = 0; i < amount; i++)
+		{
+			while (true)
+			{
+				int r = rnd.int_range(0, b.cells.length);
+				unowned Cell c = b.cells[r];
+				
+				if (c.number != -1)
+				{
+					c.number = -1;
+					break;
+				}
+			}
+		}
+		
+		return b;
+	}
+	
+	public static Board create_random(int magnitude, Rand rnd)
+	{
+		Board board = new Board.with_magnitude(magnitude);
+		
+		unowned CellList list = board.rows[0];
+		int[] numbers = new int[board.sizes];
+		
+		for (int i = 0; i < numbers.length; i++)
+			numbers[i] = i;
+		shuffle(numbers, rnd);
+		
+		unowned Cell[] cells = list.cells;
+		for (int i = 0; i < cells.length; i++)
+			cells[i].set_only_possibility(numbers[i]);
+		
+		SolveResult r = new SolveResult();
+		r = solvedCPS(board, r);
+		
+		return r.first_result;
+	}
 
 	public SolveResult? solveCPS()
 	{
-		states_expanded = 0;
 		SolveResult result = new SolveResult();
 		return solvedCPS(this, result);
 	}
@@ -163,7 +235,7 @@ public class Board
 
 			result.states_expanded++;
 			Board b = board.copy();
-			/*if (states_expanded % 100 == 0)
+			/*if (result.states_expanded % 1000 == 0)
 			{
 				print("States: " + result.states_expanded.to_string() + "\n");
 				print("Solutions: " + result.results.to_string() + "\n");
@@ -383,6 +455,17 @@ public class Board
 			get_box_at(row, col).rule_out(cell, num))
 			return true;
 		return false;
+	}
+	
+	private static void shuffle(int[] numbers, Rand r)
+	{
+		for (int i = 0; i < numbers.length; i++)
+		{
+			int rnd = numbers[r.int_range(0, numbers.length)];
+			int n = numbers[rnd];
+			numbers[rnd] = numbers[i];
+			numbers[i] = n;
+		}
 	}
 }
 

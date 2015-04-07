@@ -38,14 +38,15 @@ int main (string[] args)
 	print(board.to_string() + "\n");*/
 
 	timer.start();
-	Board board = new Board.with_magnitude(5);//*/with_grid(grid, true);
-	SolveResult r = board.solveCPS();
-	board = r.first_result;
-
+	//Board board = new Board.with_magnitude(5);//*/with_grid(grid, true);
+	Board board = Board.create_unfinished(3, 0, 53);
+	//SolveResult r = board.solveCPS();
+	//board = r.first_result;
+	
 	print("Constraint propagation:\n");
 	print("Solving time: " + (timer.elapsed() * 1000).to_string() + "ms\n");
-	print("States expanded: " + r.states_expanded.to_string() + "\n");
-	print("Solutions: " + r.results.to_string() + "\n");
+	//print("States expanded: " + r.states_expanded.to_string() + "\n");
+	//print("Solutions: " + r.results.to_string() + "\n");
 	print(board.to_string() + "\n");
 
 	return 0;
