@@ -266,9 +266,9 @@ public class Board
                             minvalue = tmp;
                             row = r;
                             col = c;
-                            if (val = rows[row].get_only_possible_cell(tmpcell) == -1)
-                                if(val = columns[col].get_only_possible_cell(tmpcell) == -1)
-                                    if(val = get_box_at(row, col).get_only_possible_cell(tmpcell) == -1)
+                            if ((val = rows[row].get_only_possible_cell(tmpcell)) == -1)
+                                if((val = columns[col].get_only_possible_cell(tmpcell)) == -1)
+                                    if((val = get_box_at(row, col).get_only_possible_cell(tmpcell)) == -1)
                                         val = tmpcell.get_constrained_value();
                             /*if(minvalue == 2)
                                 return CELL_SEARCH_ENUM.UNASSIGNED;*/
@@ -451,9 +451,9 @@ public class CellList
         {
             if (cell != c)
             {
-                for (int i = 0; i < opts; i++)
+                for (int i = 0; i < opts.length; i++)
                 {
-                        if(opts[i] == c.get_possibility[i])
+                        if(opts[i] == c.get_possibility(i))
                             opts[i] = false;
                 }
             }
