@@ -2,11 +2,12 @@ using Sudoku;
 
 int main (string[] args)
 {
-	//Sudoku.UI.Application app = new Sudoku.UI.Application ();
+	Sudoku.UI.Application app = new Sudoku.UI.Application ();
 
-	//return app.run (args);
+	return app.run (args);
 
-    Timer timer = new Timer();
+#if 0
+	Timer timer = new Timer();
 	int[,] grid =
 	{
 		{8,0,0,0,0,0,0,0,0},
@@ -49,4 +50,5 @@ int main (string[] args)
 	print(board.to_string() + "\n");
 
 	return 0;
+#endif
 }
