@@ -148,26 +148,26 @@ public class Puzzle : Object
 				switch (difficulty)
 				{
 					case "easy":
-						return 50;
+						return 90;
 					case "normal":
-						return 55;
+						return 99;
 					case "hard":
-						return 62;
+						return 111;
 					case "very-hard":
-						return 70;
+						return 130;
 				}
 				break;
 			case 5:
 				switch (difficulty)
 				{
 					case "easy":
-						return 100;
+						return 200;
 					case "normal":
-						return 120;
+						return 220;
 					case "hard":
-						return 130;
+						return 260;
 					case "very-hard":
-						return 160;
+						return 290;
 				}
 				break;
 		}
