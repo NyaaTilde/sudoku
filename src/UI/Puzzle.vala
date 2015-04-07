@@ -101,6 +101,10 @@ class Puzzle : Gtk.DrawingArea
 
 		switch (ev.keyval)
 		{
+			case Gdk.Key.Escape:
+				this.active_tile = { -1, -1 };
+				this.redraw ();
+				break;
 			case Gdk.Key.BackSpace:
 			case Gdk.Key.Delete:
 				this.puzzle.set_at (this.active_tile.x, this.active_tile.y, -1);
