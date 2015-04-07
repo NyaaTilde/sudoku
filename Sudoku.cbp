@@ -26,6 +26,7 @@
 		</Compiler>
 		<Unit filename="src/Application.vala" />
 		<Unit filename="src/Makefile" />
+		<Unit filename="src/Puzzle.vala" />
 		<Unit filename="src/Solver.vala" />
 		<Unit filename="src/main.vala" />
 		<Extensions>
