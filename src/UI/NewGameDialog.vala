@@ -24,7 +24,7 @@ class NewGameDialog : Gtk.Dialog
 		Gtk.Adjustment magnitude_adjustment = new Gtk.Adjustment
 			( this.magnitude
 			, 3
-			, 6
+			, 5
 			, 1
 			, 0
 			, 0
