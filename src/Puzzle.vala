@@ -4,6 +4,7 @@ namespace Sudoku
 public class Puzzle : Object
 {
 	public int magnitude { get; construct set; }
+	public string difficulty { get; construct set; }
 	private bool[] fixed;
 	private Board board;
 
@@ -15,9 +16,15 @@ public class Puzzle : Object
 	}
 
 	public Puzzle.with_magnitude (int magnitude)
+	{
+		this.with_magnitude_and_difficulty (magnitude, "normal");
+	}
+
+	public Puzzle.with_magnitude_and_difficulty (int magnitude, string difficulty)
 		requires (magnitude > 0 && magnitude < 7)
 	{
 		this.magnitude = magnitude;
+		this.difficulty = difficulty;
 		this.fixed = new bool[magnitude * magnitude * magnitude * magnitude];
 		this.board = new Board.with_magnitude (magnitude);
 

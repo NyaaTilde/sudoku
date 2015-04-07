@@ -4,6 +4,7 @@ namespace Sudoku.UI
 class Window : Gtk.ApplicationWindow
 {
 	private Gtk.AspectFrame frame;
+	private Gtk.HeaderBar header_bar;
 
 	public Sudoku.Puzzle active_puzzle { get; set; }
 
@@ -13,7 +14,6 @@ class Window : Gtk.ApplicationWindow
 			( application: application
 			);
 
-		Gtk.HeaderBar header_bar = new Gtk.HeaderBar ();
 		Gtk.MenuButton menu_button = new Gtk.MenuButton ();
 		Gtk.Image image = new Gtk.Image.from_icon_name ("emblem-system-symbolic", Gtk.IconSize.BUTTON);
 		Gtk.Box box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
@@ -23,6 +23,7 @@ class Window : Gtk.ApplicationWindow
 		commands.solve.connect (on_solve);
 		commands.clear.connect (on_clear);
 
+		this.header_bar = new Gtk.HeaderBar ();
 		this.frame = new Gtk.AspectFrame (null, 0.5f, 0.5f, 1.0f, false);
 		this.frame.expand = true;
 		this.notify.connect (this.on_notify);
@@ -32,7 +33,6 @@ class Window : Gtk.ApplicationWindow
 		menu_button.set_popup (commands);
 
 		header_bar.title = "Sudoku";
-		header_bar.subtitle = "Artificial Intelligence";
 		header_bar.show_close_button = true;
 		header_bar.pack_end (menu_button);
 
@@ -42,9 +42,26 @@ class Window : Gtk.ApplicationWindow
 		this.add (box);
 	}
 
+	private string friendly_difficulty (string difficulty)
+	{
+		switch (difficulty)
+		{
+			case "easy":
+				return "Easy Difficulty";
+			case "normal":
+				return "Normal Difficulty";
+			case "hard":
+				return "Hard Difficulty";
+			case "very-hard":
+				return "Very Hard Difficulty";
+		}
+
+		return "";
+	}
+
 	private void on_new_game (int magnitude, string difficulty)
 	{
-		this.active_puzzle = new Sudoku.Puzzle.with_magnitude (magnitude);
+		this.active_puzzle = new Sudoku.Puzzle.with_magnitude_and_difficulty (magnitude, difficulty);
 	}
 
 	private void on_solve ()
@@ -68,6 +85,9 @@ class Window : Gtk.ApplicationWindow
 
 				this.frame.add (new UI.Puzzle (this.active_puzzle));
 				this.frame.show_all ();
+
+				this.header_bar.subtitle = friendly_difficulty (this.active_puzzle.difficulty);
+
 				break;
 		}
 	}
