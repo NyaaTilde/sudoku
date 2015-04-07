@@ -21,7 +21,7 @@ Compiling
 Go to the 'src' directory and run 'make'. The Makefile provided executes the
 needed commands for compilation.
 
-Compilation errors are likely expalined my missing dependencies or that their
+Compilation errors are likely explained my missing dependencies or that their
 versions are insufficient.
 
 	$ cd src
