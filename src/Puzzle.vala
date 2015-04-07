@@ -497,7 +497,7 @@ public class CellList
 			}
 		foreach (Cell c in list)
 			foreach (Cell c2 in cells)
-				if(c.number == c2.number && c.row != c2.row && c.col != c2.col)
+				if(c.number == c2.number && c != c2)
 					list.add(c2);
 		return list;
 
