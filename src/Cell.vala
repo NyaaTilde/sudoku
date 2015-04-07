@@ -1,9 +1,10 @@
 namespace Sudoku
 {
 
+[Compact]
 public class Cell
 {
-	private bool[] options;
+	public bool[] options;
 
 	public Cell(int possibilities, int row, int col)
 	{
@@ -12,7 +13,8 @@ public class Cell
 		this.col = col;
 
 		number = -1;
-		for (int i = 0; i < options.length; i++)
+		int length = options.length;
+		for (int i = 0; i < length; i++)
 			options[i] = true;
 	}
 
@@ -24,7 +26,8 @@ public class Cell
 	public bool set_possibility(int index, bool value)
 	{
 		options[index] = value;
-		for (int i = 0; i < options.length; i++)
+		int length = options.length;
+		for (int i = 0; i < length; i++)
 			if (options[i])
 				return true;
 		return false;
@@ -32,7 +35,8 @@ public class Cell
 
 	public void set_only_possibility(int index)
 	{
-		for (int i = 0; i < options.length; i++)
+		int length = options.length;
+		for (int i = 0; i < length; i++)
 			options[i] = i == index || index == -1;
 		number = index;
 	}
@@ -86,7 +90,8 @@ public class Cell
 		opts = 0;
 		if (number != -1)
 			return CELL_SEARCH_ENUM.FINISHED;
-		for(int i = 0; i < options.length; i++)
+		int length = options.length;
+		for(int i = 0; i < length; i++)
 			if (options[i])
 				opts++;
 		if(opts > 0)
@@ -109,9 +114,9 @@ public class Cell
 		return n;
 	}
 
-	public int number { get; set; }
-	public int row { get; private set; }
-	public int col { get; private set; }
+	public int number;
+	public int row;
+	public int col;
 }
 
 }

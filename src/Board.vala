@@ -39,7 +39,7 @@ public class Board
 			for (int col = 0; col < sizes; col++)
 			{
 				int number = grid[row, col];
-				Cell cell = cells[row * sizes + col];
+				unowned Cell cell = cells[row * sizes + col];
 
 				if (number != empty)
 				{
@@ -113,7 +113,7 @@ public class Board
 
 	public ArrayList<Cell> check_conflicts()
 	{
-		var list = new ArrayList<Cell>();
+		var list = new ArrayList<unowned Cell>();
 		foreach (CellList cl in rows)
 			list.add_all(cl.get_conflicts());
 		foreach (CellList cl in columns)
@@ -131,7 +131,7 @@ public class Board
 		return boxes[col + row * magnitude];
 	}
 
-	public Cell get_cell_at(int row, int col)
+	public unowned Cell get_cell_at(int row, int col)
 	{
 		return cells[col + row * sizes];
 	}
@@ -188,7 +188,7 @@ public class Board
 			{
 				states_expanded++;
 				Board b = board.copy();
-				Cell c = b.get_cell_at(row, col);
+				unowned Cell c = b.get_cell_at(row, col);
 				c.set_only_possibility(i);
 				if (!b.rule_out_cells(row, col, i, c))
 					continue;
@@ -229,7 +229,7 @@ public class Board
 			for (int c = 0; c < sizes; c++)
 			{
 				int tmp = 0;
-				Cell tmpcell = get_cell_at(r,c);
+				unowned Cell tmpcell = get_cell_at(r,c);
 				switch (tmpcell.get_options(out tmp))
 				{
 					case CELL_SEARCH_ENUM.UNASSIGNED:
@@ -265,8 +265,8 @@ public class Board
 		for (int r = 0; r < sizes; r++)
 			for (int c = 0; c < sizes; c++)
 			{
-				Cell cell = get_cell_at(r, c);
-				
+				unowned Cell cell = get_cell_at(r, c);
+
 				switch (cell.has_multiple_options())
 				{
 				case CELL_SEARCH_ENUM.UNASSIGNED:
@@ -318,7 +318,7 @@ public class Board
 
 	private bool propagate(int row, int col, int value)
 	{
-		Cell c = get_cell_at(row, col);
+		unowned Cell c = get_cell_at(row, col);
 		c.set_only_possibility(value);
 		if (!rule_out_cells(row, col, value, c))
 			return false;
@@ -335,7 +335,7 @@ public class Board
 	{
 		while (true)
 		{
-			Cell? c = list.get_constrained_cell();
+			unowned Cell? c = list.get_constrained_cell();
 			if (c == null)
 				return true;
 

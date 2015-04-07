@@ -14,7 +14,7 @@ public class CellList
 
 	public bool rule_out(Cell cell, int index)
 	{
-		foreach (Cell c in cells)
+		foreach (unowned Cell c in cells)
 		{
 			if(cell != c)
 				if (!c.set_possibility(index, false))
@@ -26,26 +26,26 @@ public class CellList
 
 	public ArrayList<Cell> get_conflicts()
 	{
-		var list = new ArrayList<Cell>();
+		var list = new ArrayList<unowned Cell>();
 		int[] numbers = new int[cells.length];
-		foreach (Cell c in cells)
+		foreach (unowned Cell c in cells)
 			if(c.number != -1)
 			{
 				numbers[c.number]++;
 				if(numbers[c.number]>1)
 					list.add(c);
 			}
-		foreach (Cell c in list)
-			foreach (Cell c2 in cells)
+		foreach (unowned Cell c in list)
+			foreach (unowned Cell c2 in cells)
 				if(c.number == c2.number && c != c2)
 					list.add(c2);
 		return list;
 
 	}
 
-	public Cell? get_constrained_cell()
+	public unowned Cell? get_constrained_cell()
 	{
-		foreach (Cell c in cells)
+		foreach (unowned Cell c in cells)
 			if (c.is_constrained())
 				return c;
 		return null;
@@ -53,7 +53,7 @@ public class CellList
 	public int get_only_possible_cell(Cell cell)
 	{
 		bool[] opts = cell.get_all_options();
-		foreach (Cell c in cells)
+		foreach (unowned Cell c in cells)
 		{
 			if (cell != c)
 			{
@@ -74,7 +74,7 @@ public class CellList
 
 	public bool is_used(int number)
 	{
-		foreach (Cell c in cells)
+		foreach (unowned Cell c in cells)
 			if (number == c.number)
 				return true;
 		return false;
@@ -82,7 +82,7 @@ public class CellList
 
 	public bool has_option(int number)
 	{
-		foreach (Cell c in cells)
+		foreach (unowned Cell c in cells)
 			if (!c.get_possibility(number))
 				return false;
 		return true;
