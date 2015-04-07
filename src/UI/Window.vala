@@ -14,6 +14,7 @@ class Window : Gtk.ApplicationWindow
 			( application: application
 			);
 
+		Gtk.Button new_game_button = new Gtk.Button.with_label ("New Game");
 		Gtk.MenuButton menu_button = new Gtk.MenuButton ();
 		Gtk.Image image = new Gtk.Image.from_icon_name ("emblem-system-symbolic", Gtk.IconSize.BUTTON);
 		Gtk.Box box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
@@ -29,11 +30,23 @@ class Window : Gtk.ApplicationWindow
 		this.notify.connect (this.on_notify);
 		this.active_puzzle = puzzle;
 
+		new_game_button.clicked.connect (() => {
+			NewGameDialog dialog = new NewGameDialog (this);
+			int response = dialog.run ();
+			dialog.destroy ();
+
+			if (response == Gtk.ResponseType.OK)
+			{
+				this.on_new_game (dialog.magnitude, dialog.difficulty);
+			}
+		});
+
 		menu_button.add (image);
 		menu_button.set_popup (commands);
 
 		header_bar.title = "Sudoku";
 		header_bar.show_close_button = true;
+		header_bar.pack_start (new_game_button);
 		header_bar.pack_end (menu_button);
 
 		box.add (this.frame);
