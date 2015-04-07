@@ -3,7 +3,7 @@ namespace Sudoku.UI
 
 class Window : Gtk.ApplicationWindow
 {
-	private Gtk.Box box;
+	private Gtk.AspectFrame frame;
 
 	public Sudoku.Puzzle active_puzzle { get; set; }
 
@@ -16,11 +16,13 @@ class Window : Gtk.ApplicationWindow
 		Gtk.HeaderBar header_bar = new Gtk.HeaderBar ();
 		Gtk.MenuButton menu_button = new Gtk.MenuButton ();
 		Gtk.Image image = new Gtk.Image.from_icon_name ("emblem-system-symbolic", Gtk.IconSize.BUTTON);
+		Gtk.Box box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
 		UI.Commands commands = new UI.Commands (this.application, this);
 
 		commands.new_game.connect (on_new_game);
 
-		this.box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+		this.frame = new Gtk.AspectFrame (null, 0.5f, 0.5f, 1.0f, false);
+		this.frame.expand = true;
 		this.notify.connect (this.on_notify);
 		this.active_puzzle = puzzle;
 
@@ -32,8 +34,7 @@ class Window : Gtk.ApplicationWindow
 		header_bar.show_close_button = true;
 		header_bar.pack_end (menu_button);
 
-		this.box.halign = Gtk.Align.CENTER;
-		this.box.valign = Gtk.Align.CENTER;
+		box.add (this.frame);
 
 		this.set_titlebar (header_bar);
 		this.add (box);
@@ -49,12 +50,12 @@ class Window : Gtk.ApplicationWindow
 		switch (ps.name)
 		{
 			case "active-puzzle":
-				this.box.@foreach ((widget) => {
-					this.box.remove (widget);
+				this.frame.@foreach ((widget) => {
+					this.frame.remove (widget);
 				});
 
-				this.box.add (new UI.Puzzle (this.active_puzzle));
-				this.box.show_all ();
+				this.frame.add (new UI.Puzzle (this.active_puzzle));
+				this.frame.show_all ();
 				break;
 		}
 	}

@@ -4,9 +4,6 @@ namespace Sudoku.UI
 class Puzzle : Gtk.DrawingArea
 {
 	private Sudoku.Puzzle puzzle;
-	private int dimension;
-	private int tile;
-
 	private Gdk.Point active_tile;
 
 	private string[] alphabet =
@@ -24,19 +21,15 @@ class Puzzle : Gtk.DrawingArea
 		Object ();
 
 		this.puzzle = puzzle;
-		this.tile = 52;
 		this.active_tile = { -1, -1 };
-
-		dimension
-			= this.tile * this.puzzle.magnitude * this.puzzle.magnitude
-			+ this.puzzle.magnitude * this.puzzle.magnitude + 1;
 
 		this.set_events
 			( Gdk.EventMask.BUTTON_PRESS_MASK
 			| Gdk.EventMask.KEY_PRESS_MASK
 			);
+
 		this.can_focus = true;
-		this.set_size_request ((int) dimension, (int) dimension);
+		this.set_size_request (600, 600);
 
 		this.button_press_event.connect (on_button_press_event);
 		this.key_press_event.connect (on_key_press_event);
@@ -45,12 +38,20 @@ class Puzzle : Gtk.DrawingArea
 
 	private void redraw ()
 	{
-		this.queue_draw_area (0, 0, this.dimension, this.dimension);
+		this.queue_draw_area (0, 0, this.get_drawing_size (), this.get_drawing_size ());
 	}
 
 	private string get_character (int num)
 	{
 		return this.alphabet[this.puzzle.magnitude][num].to_string ();
+	}
+
+	private int get_drawing_size ()
+	{
+		return int.min
+			( this.get_allocated_width ()
+			, this.get_allocated_height ()
+			);
 	}
 
 	private int get_number (char character)
@@ -70,13 +71,15 @@ class Puzzle : Gtk.DrawingArea
 	{
 		this.grab_focus ();
 
+		int num_tiles = this.puzzle.magnitude * this.puzzle.magnitude;
 		Gdk.Point tile = { };
-		tile.x = (int) ev.x / (this.tile + 1);
-		tile.y = (int) ev.y / (this.tile + 1);
+
+		tile.x = (int) ev.x * num_tiles / this.get_drawing_size ();
+		tile.y = (int) ev.y * num_tiles / this.get_drawing_size ();
 
 		if
-			(  tile.x >= this.puzzle.magnitude * this.puzzle.magnitude
-			|| tile.y >= this.puzzle.magnitude * this.puzzle.magnitude
+			(  tile.x >= num_tiles
+			|| tile.y >= num_tiles
 			)
 			return true;
 
@@ -125,42 +128,13 @@ class Puzzle : Gtk.DrawingArea
 	{
 		int num_tiles = this.puzzle.magnitude * this.puzzle.magnitude;
 
-		ctx.set_line_width (1.0);
+		ctx.scale (this.get_drawing_size (), this.get_drawing_size ());
+		ctx.scale (1.0 / num_tiles, 1.0 / num_tiles);
+		ctx.set_line_width (1.5 * (double) num_tiles / this.get_drawing_size ());
 
 		ctx.set_source_rgb (1.0, 1.0, 1.0);
-		ctx.rectangle (0, 0, this.dimension, this.dimension);
+		ctx.rectangle (0, 0, num_tiles, num_tiles);
 		ctx.fill ();
-
-		/* render thin lines */
-		for (int i = 0; i <= num_tiles; ++i)
-		{
-			if (i % this.puzzle.magnitude == 0)
-				continue;
-
-			ctx.set_source_rgb (0.5, 0.5, 0.5);
-
-			ctx.move_to (0, i * (this.tile + 1));
-			ctx.line_to (dimension, i * (this.tile + 1));
-
-			ctx.move_to (i * (this.tile + 1), 0);
-			ctx.line_to (i * (this.tile + 1), dimension);
-		}
-
-		ctx.stroke ();
-
-		/* render thick lines */
-		for (int i = 0; i <= num_tiles; i += this.puzzle.magnitude)
-		{
-			ctx.set_source_rgb (0.0, 0.0, 0.0);
-
-			ctx.move_to (0, i * (this.tile + 1));
-			ctx.line_to (dimension, i * (this.tile + 1));
-
-			ctx.move_to (i * (this.tile + 1), 0);
-			ctx.line_to (i * (this.tile + 1), dimension);
-		}
-
-		ctx.stroke ();
 
 		for (int i = 0; i < num_tiles; ++i)
 		{
@@ -169,16 +143,13 @@ class Puzzle : Gtk.DrawingArea
 				Cairo.TextExtents te;
 
 				ctx.save ();
-				ctx.translate
-					( i * (this.tile + 1)
-					, j * (this.tile + 1)
-					);
+				ctx.translate (i, j);
 
 				/* render active background */
 				if (i == this.active_tile.x && j == this.active_tile.y)
 				{
 					ctx.set_source_rgb (0.46, 0.61, 0.80);
-					ctx.rectangle (1, 1, this.tile - 1, this.tile - 1);
+					ctx.rectangle (0, 0, 1, 1);
 					ctx.fill ();
 				}
 
@@ -186,7 +157,7 @@ class Puzzle : Gtk.DrawingArea
 				if (this.puzzle.is_fixed (i, j))
 				{
 					ctx.set_source_rgb (0.8, 0.8, 0.8);
-					ctx.rectangle (1, 1, this.tile - 1, this.tile - 1);
+					ctx.rectangle (0, 0, 1, 1);
 					ctx.fill ();
 				}
 
@@ -198,11 +169,11 @@ class Puzzle : Gtk.DrawingArea
 					string str = this.get_character (num);
 
 					ctx.set_source_rgb (0.0, 0.0, 0.0);
-					ctx.set_font_size (this.tile / 2.0);
+					ctx.set_font_size (0.5);
 					ctx.text_extents (str, out te);
 					ctx.move_to
-						( 0.5*this.tile + 0.5 - te.x_bearing - te.width / 2
-						, 0.5*this.tile + 0.5 - te.y_bearing - te.height / 2
+						( 0.5 - te.x_bearing - te.width / 2
+						, 0.5 - te.y_bearing - te.height / 2
 						);
 					ctx.show_text (str);
 					ctx.fill ();
@@ -211,6 +182,37 @@ class Puzzle : Gtk.DrawingArea
 				ctx.restore ();
 			}
 		}
+
+		/* render thin lines */
+		for (int i = 0; i <= num_tiles; ++i)
+		{
+			if (i % this.puzzle.magnitude == 0)
+				continue;
+
+			ctx.set_source_rgb (0.5, 0.5, 0.5);
+
+			ctx.move_to (0, i);
+			ctx.line_to (num_tiles, i);
+
+			ctx.move_to (i, 0);
+			ctx.line_to (i, num_tiles);
+		}
+
+		ctx.stroke ();
+
+		/* render thick lines */
+		for (int i = 0; i <= num_tiles; i += this.puzzle.magnitude)
+		{
+			ctx.set_source_rgb (0.0, 0.0, 0.0);
+
+			ctx.move_to (0, i);
+			ctx.line_to (num_tiles, i);
+
+			ctx.move_to (i, 0);
+			ctx.line_to (i, num_tiles);
+		}
+
+		ctx.stroke ();
 
 		return true;
 	}
