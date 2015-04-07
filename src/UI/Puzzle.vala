@@ -167,11 +167,7 @@ class Puzzle : Gtk.DrawingArea
 						== this.active_tile.y / this.puzzle.magnitude
 					)
 				{
-					ctx.set_source_rgb
-						( 0.730 + (1.0 - 0.730)*0.7
-						, 0.825 + (1.0 - 0.825)*0.7
-						, 0.900 + (1.0 - 0.900)*0.7
-						);
+					ctx.set_source_rgb (0.919, 0.948, 0.970);
 					ctx.rectangle (0, 0, 1, 1);
 					ctx.fill ();
 				}
