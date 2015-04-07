@@ -5,7 +5,7 @@ namespace Sudoku
 
 public class CellList
 {
-	private Cell[] cells;
+	private (unowned Cell)[] cells;
 
 	public CellList(Cell[] cells)
 	{

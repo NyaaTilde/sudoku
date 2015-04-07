@@ -45,7 +45,8 @@ public class Cell
 
 		if (options.length != cell.options.length)
 			options = new bool[cell.options.length];
-		for (int i = 0; i < options.length; i++)
+		int length = options.length;
+		for (int i = 0; i < length; i++)
 			options[i] = cell.options[i];
 	}
 

@@ -68,9 +68,9 @@ public class Board
 		for (int i = 0; i < cells.length; i++)
 			cells[i] = new Cell(sizes, i / sizes, i % sizes);
 
-		Cell[] row_list = new Cell[sizes];
-		Cell[] column_list = new Cell[sizes];
-		Cell[] box_list = new Cell[sizes];
+		(unowned Cell)[] row_list = new Cell[sizes];
+		(unowned Cell)[] column_list = new Cell[sizes];
+		(unowned Cell)[] box_list = new Cell[sizes];
 
 		for (int row = 0; row < sizes; row++)
 		{
@@ -156,7 +156,7 @@ public class Board
 
 			states_expanded++;
 			Board b = board.copy();
-			if (states_expanded % 100 == 0)
+			if (states_expanded % 1000 == 0)
 			{
 				print("States: " + states_expanded.to_string() + "\n");
 				print(b.to_string() + "\n------------------------------------\n");
