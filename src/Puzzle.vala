@@ -102,7 +102,7 @@ public class Puzzle : Object
 			conflicts[i] = false;
 		}
 
-		foreach (var cell in cells)
+		foreach (var cell in cells as AbstractCollection<Cell>)
 		{
 			set_conflict (cell.col, cell.row);
 		}
@@ -495,7 +495,7 @@ public class CellList
 				if(numbers[c.number]>1)
 					list.add(c);
 			}
-		foreach (Cell c in list)
+		foreach (Cell c in list as AbstractCollection<Cell>)
 			foreach (Cell c2 in cells)
 				if(c.number == c2.number && c != c2)
 					list.add(c2);
