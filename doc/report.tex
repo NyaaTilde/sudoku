@@ -8,7 +8,7 @@
 \usepackage{verbatim}
 
 \title{Final Project: The Report}
-\author{Ingibergur Sindri Stefnisson \and Gabríel Arthúr Pétursson \and Kristján Árni Gerhardsson
+\author{Gabríel Arthúr Pétursson \and Ingibergur Sindri Stefnisson \and Kristján Árni Gerhardsson
 	\footnote{The order of the names listed were determined by their amount of procrastination.}}
 
 \begin{document}
@@ -75,6 +75,16 @@ We wanted to make something that could solve 16x16 puzzles.
 Then we started implementing forward checking. And after forward cheking we 
 implemented Constraint Propagation and made a fair heuristics function. With those changes we should be able to solve all valid 16x16 puzzles.
 
+\subsection*{Programming Language}
+
+For this project we made use of the Vala programming language. Vala is an
+Object-Oriented programming language, similar to C\# and C++. The Vala code is
+compiled into regular C code and bound together with the glib library for object
+creation and management. Then the C code is compiled like regular C code, using
+the GCC compiler package. We chose this language because of the C-like performance
+it has, even though it is an OOP language. Because of this it suits quite well
+for searching problems.
+
 \subsection*{Code structure}
 
 So the way our code is structured is we have a class \verb+Board+ that has arrays of \verb+CellList+s that store the rows, columns and boxes, and an array of all \verb+Cell+s in the \verb+Board+.
@@ -107,12 +117,19 @@ contain that number. We maintain those bitmasks for each cell.
 
 \subsection*{Constraint Propagation}
 
-What the Constraint Propagation does is checks for every cell if there is a cell
-that has only one possible solution.
+What the Constraint Propagation does is, to check for every cell if it has only
+one possible solution.
 
-We also check if the cell is the only one that can carry a particular solution,
-that is, that solution would obviously not fit into any other cell within the
-same row, column, or box.
+Once a cell that must have one unique solution has been found we propagate the
+exclusion of that possibility to all the cells in the same row, column, and box.
+This can cause a cascading effect if another cell only has a single solution
+left as a result of the exclusion of that number. This will continue to recurse
+until all nodes with a unique solution have been filled.
+
+This causes by far the biggest improvement in performance of all the optimizations,
+in all the algorithms. In some cases it can solve a puzzle without having to
+expand a single state, just by propagating the initial values through all the
+cells lists.
 
 \subsection*{Heuristic}
 
@@ -133,6 +150,17 @@ it solved all 9x9 Sudoku puzzles in around 50~milliseconds.
 
 When we tried to solve 16*16 puzzles though it could not solve it over a few days
 running.
+
+\subsection*{Generator}
+
+The generation uses a rather trivial algorithm to generate puzzles. It starts
+off by filling the first row with random numbers from 1 to $n$, for an $n$ sized
+sudoku grid. Then it solves this puzzle. After solving the puzzle it will remove
+a certain amount of numbers from the grid. For magnitude 3 sized boards it will
+try to see if this new board has a unique solution, and generate a new one if
+it is not so. Due to this being a trivial slow algorithm, this would take way
+to long for anything greater than magnitude 3 boards, and so will just simply
+return a board which might have more than 1 solution.
 
 \subsection*{Experiments}
 
@@ -167,6 +195,8 @@ The hard 16x16 we used could be solved in around 380 thousand states.
 The hardest 16x16 puzzle we could find, we were unable to solve in over 40 million 
 states tried. :-(
 
+\pagebreak
+
 \section*{Conclusion}
 
 Our conclusion to this project is that while Sudoku is a hard Constraint
@@ -178,5 +208,13 @@ quickly.
 
 We made a sweet little GUI to use with it and a simple generator to make
 puzzles.
+
+\subsection*{Future suggestions}
+
+Using constraint propagation with a good heuristic is a good way to solve small
+and medium sized sudoku puzzles. However, generation requires a little more
+specific algorithms, rather than just the trivial one we implemented. It would
+be essential to include a more advanced generation algorithm for future versions
+of the game.
 
 \end{document}
